@@ -1,6 +1,6 @@
 // Importações do Firebase
 import { collection, addDoc, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
+// 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('cadastroForm');
     const togglePassword = document.getElementById('togglePassword');
