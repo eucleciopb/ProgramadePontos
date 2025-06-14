@@ -16,8 +16,71 @@ body {
     padding: 20px 0;
 }
 
+/* Impede que os feedbacks de validação apareçam antes do submit */
+.form-control:invalid {
+    border-color: #ced4da;
+    background-image: none;
+}
+
+.form-control:invalid ~ .invalid-feedback {
+    display: none;
+}
+
+.form-check-input:invalid ~ .invalid-feedback {
+    display: none;
+}
+
+/* Só mostra os feedbacks quando o formulário tem a classe was-validated */
+.was-validated .form-control:invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback {
+    display: block;
+}
+
+.was-validated .form-check-input:invalid ~ .invalid-feedback {
+    display: block;
+}
+
+/* Impede que as mensagens de erro apareçam antes do submit */
+.invalid-feedback {
+    display: none !important;
+}
+
+/* Só mostra as mensagens quando o formulário foi submetido */
+.was-validated .invalid-feedback {
+    display: block !important;
+}
+
+/* Remove bordas vermelhas antes da validação */
+.form-control:invalid {
+    border-color: #ced4da !important;
+    background-image: none !important;
+}
+
+.form-check-input:invalid {
+    border-color: #ced4da !important;
+}
+
+/* Só aplica estilos de erro após validação */
+.was-validated .form-control:invalid {
+    border-color: #dc3545 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e") !important;
+}
+
+.was-validated .form-check-input:invalid {
+    border-color: #dc3545 !important;
+}
+
+/* Estilos existentes */
 .bg-gradient-green {
-    background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    background: linear-gradient(135deg, #28a745, #20c997);
 }
 
 .card {
@@ -42,17 +105,14 @@ body {
 
 .custom-input {
     border: 2px solid #e9ecef;
-    border-radius: 10px;
-    padding: 1rem 1rem 1rem 3rem;
-    font-size: 1rem;
+    border-radius: 12px;
+    padding: 12px 16px;
     transition: all 0.3s ease;
-    background-color: var(--pure-white);
 }
 
 .custom-input:focus {
-    border-color: var(--primary-green);
+    border-color: #28a745;
     box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-    background-color: var(--pure-white);
 }
 
 .custom-input:invalid:not(:placeholder-shown) {
@@ -86,7 +146,6 @@ body {
 }
 
 .form-floating > label {
-    padding-left: 3rem;
     color: #6c757d;
     font-weight: 500;
 }
@@ -98,17 +157,15 @@ body {
 }
 
 .btn-success {
-    background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+    background: linear-gradient(135deg, #28a745, #20c997);
     border: none;
     transition: all 0.3s ease;
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
 }
 
 .btn-success:hover {
-    background: linear-gradient(135deg, var(--dark-green), var(--primary-green));
+    background: linear-gradient(135deg, #218838, #1ea085);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
 .btn-success:active {

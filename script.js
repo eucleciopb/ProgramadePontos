@@ -1,248 +1,168 @@
-import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+// Importações do Firebase
+import { collection, addDoc, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-// Função para formatar telefone
-function formatarTelefone(telefone) {
-    const numero = telefone.replace(/\D/g, '');
-    if (numero.length === 11) {
-        return numero.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-    } else if (numero.length === 10) {
-        return numero.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-    }
-    return telefone;
-}
-
-// Função para aplicar máscara no telefone
-function aplicarMascaraTelefone(input) {
-    input.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 11) {
-            if (value.length <= 2) {
-                value = value.replace(/(\d{0,2})/, '($1');
-            } else if (value.length <= 7) {
-                value = value.replace(/(\d{2})(\d{0,5})/, '($1) $2');
-            } else {
-                value = value.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
-            }
-        }
-        e.target.value = value;
-    });
-}
-
-// Função para validar email
-function validarEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
-
-// Função para validar telefone
-function validarTelefone(telefone) {
-    const numero = telefone.replace(/\D/g, '');
-    return numero.length >= 10 && numero.length <= 11;
-}
-
-// Função para mostrar toast
-function mostrarToast(tipo, titulo, mensagem) {
-    const toastContainer = document.querySelector('.toast-container');
-    const toastId = `${tipo}Toast${Date.now()}`;
-    
-    const toastHTML = `
-        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header ${tipo === 'success' ? 'bg-success' : 'bg-danger'} text-white">
-                <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
-                <strong class="me-auto">${titulo}</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body">
-                ${mensagem}
-            </div>
-        </div>
-    `;
-    
-    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-    
-    const toast = new bootstrap.Toast(document.getElementById(toastId));
-    toast.show();
-    
-    // Remove o toast do DOM após ser ocultado
-    document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
-        this.remove();
-    });
-}
-
-// Função para salvar cliente no Firestore
-async function salvarClienteFirestore(dadosCliente) {
-    try {
-        const docRef = await addDoc(collection(window.db, "clientes"), {
-            ...dadosCliente,
-            dataCadastro: serverTimestamp(),
-            pontos: 0,
-            ativo: true,
-            nivel: 'Bronze' // Nível inicial do programa de pontos
-        });
-        
-        console.log("Cliente cadastrado com ID: ", docRef.id);
-        return { success: true, id: docRef.id };
-    } catch (error) {
-        console.error("Erro ao cadastrar cliente: ", error);
-        return { success: false, error: error.message };
-    }
-}
-
-// Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('cadastroForm');
-    const telefoneInput = document.getElementById('telefone');
     const togglePassword = document.getElementById('togglePassword');
     const senhaInput = document.getElementById('senha');
     const eyeIcon = document.getElementById('eyeIcon');
-    
-    // Aplicar máscara no telefone
-    aplicarMascaraTelefone(telefoneInput);
-    
+
+    // Remove validação automática dos campos
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('invalid', function(e) {
+            e.preventDefault(); // Impede a validação automática
+        });
+    });
+
     // Toggle para mostrar/ocultar senha
     togglePassword.addEventListener('click', function() {
         const type = senhaInput.getAttribute('type') === 'password' ? 'text' : 'password';
         senhaInput.setAttribute('type', type);
         
-        if (type === 'password') {
-            eyeIcon.classList.remove('fa-eye-slash');
-            eyeIcon.classList.add('fa-eye');
-        } else {
-            eyeIcon.classList.remove('fa-eye');
-            eyeIcon.classList.add('fa-eye-slash');
-        }
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
     });
-    
-    // Função para verificar se email já existe
-    async function verificarEmailExistente(email) {
-        try {
-            const q = query(collection(window.db, "clientes"), where("email", "==", email.toLowerCase()));
-            const querySnapshot = await getDocs(q);
-            return !querySnapshot.empty;
-        } catch (error) {
-            console.error("Erro ao verificar email:", error);
-            return false;
-        }
-    }
 
-    // Função para verificar se telefone já existe
-    async function verificarTelefoneExistente(telefone) {
-        try {
-            const q = query(collection(window.db, "clientes"), where("telefone", "==", telefone));
-            const querySnapshot = await getDocs(q);
-            return !querySnapshot.empty;
-        } catch (error) {
-            console.error("Erro ao verificar telefone:", error);
-            return false;
+    // Máscara para telefone
+    const telefoneInput = document.getElementById('telefone');
+    telefoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 11) {
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            if (value.length < 14) {
+                value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+            }
         }
-    }
+        e.target.value = value;
+    });
 
-    // Validação e envio do formulário
+    // Manipulação do formulário
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        e.stopPropagation();
         
-        // Obter valores dos campos
+        // Validação manual
+        let isValid = true;
         const nome = document.getElementById('nome').value.trim();
         const sobrenome = document.getElementById('sobrenome').value.trim();
         const telefone = document.getElementById('telefone').value.trim();
         const email = document.getElementById('email').value.trim();
         const senha = document.getElementById('senha').value;
         const termos = document.getElementById('termos').checked;
-        
-        let isValid = true;
-        
-        // Aplicar classes de validação do Bootstrap APENAS no submit
-        form.classList.add('was-validated');
-        
-        // Validações customizadas básicas
-        if (!validarEmail(email)) {
-            mostrarErroCampo('email', 'Por favor, informe um e-mail válido.');
-            isValid = false;
-        } else {
-            document.getElementById('email').classList.remove('is-invalid');
-            document.getElementById('email').classList.add('is-valid');
+
+        // Validações
+        if (!nome) isValid = false;
+        if (!sobrenome) isValid = false;
+        if (!telefone) isValid = false;
+        if (!email || !isValidEmail(email)) isValid = false;
+        if (!senha || senha.length < 6) isValid = false;
+        if (!termos) isValid = false;
+
+        if (!isValid) {
+            // Adiciona a classe was-validated para mostrar os erros
+            form.classList.add('was-validated');
+            
+            // Foca no primeiro campo inválido
+            const firstInvalidField = form.querySelector(':invalid');
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+            }
+            
+            showToast('Por favor, corrija os erros no formulário.', 'error');
+            return;
         }
-        
-        if (!validarTelefone(telefone)) {
-            mostrarErroCampo('telefone', 'Por favor, informe um telefone válido.');
-            isValid = false;
-        } else {
-            document.getElementById('telefone').classList.remove('is-invalid');
-            document.getElementById('telefone').classList.add('is-valid');
-        }
-        
-        // Verificar se o formulário é válido
-        if (form.checkValidity() && isValid) {
-            // Desabilitar botão de envio
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verificando dados...';
+
+        // Se chegou aqui, o formulário é válido
+        const formData = {
+            nome: nome,
+            sobrenome: sobrenome,
+            telefone: telefone,
+            email: email.toLowerCase(),
+            senha: senha,
+            dataCadastro: new Date(),
+            pontos: 0,
+            ativo: true
+        };
+
+        try {
+            // Verificar se o email já existe
+            const emailQuery = query(
+                collection(window.db, 'clientes'), 
+                where('email', '==', formData.email)
+            );
+            const emailSnapshot = await getDocs(emailQuery);
             
-            // Verificar duplicatas APENAS no momento do envio
-            const emailExiste = await verificarEmailExistente(email);
-            const telefoneExiste = await verificarTelefoneExistente(telefone);
-            
-            if (emailExiste) {
-                mostrarErroCampo('email', 'Este e-mail já está cadastrado no sistema.');
-                mostrarToast('error', 'Erro!', 'E-mail já cadastrado. Tente fazer login ou use outro e-mail.');
-                isValid = false;
+            if (!emailSnapshot.empty) {
+                showToast('Este e-mail já está cadastrado!', 'error');
+                return;
             }
+
+            // Verificar se o telefone já existe
+            const telefoneQuery = query(
+                collection(window.db, 'clientes'), 
+                where('telefone', '==', formData.telefone)
+            );
+            const telefoneSnapshot = await getDocs(telefoneQuery);
             
-            if (telefoneExiste) {
-                mostrarErroCampo('telefone', 'Este telefone já está cadastrado no sistema.');
-                mostrarToast('error', 'Erro!', 'Telefone já cadastrado. Use outro número de telefone.');
-                isValid = false;
+            if (!telefoneSnapshot.empty) {
+                showToast('Este telefone já está cadastrado!', 'error');
+                return;
             }
+
+            // Salvar no Firebase
+            const docRef = await addDoc(collection(window.db, 'clientes'), formData);
             
-            if (isValid) {
-                // Atualizar texto do botão
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Cadastrando...';
-                
-                // Preparar dados do cliente
-                const dadosCliente = {
-                    nome: nome,
-                    sobrenome: sobrenome,
-                    nomeCompleto: `${nome} ${sobrenome}`,
-                    telefone: telefone,
-                    email: email.toLowerCase(),
-                    senha: senha // IMPORTANTE: Em produção, criptografe a senha!
-                };
-                
-                // Salvar no Firestore
-                const resultado = await salvarClienteFirestore(dadosCliente);
-                
-                if (resultado.success) {
-                    mostrarToast('success', 'Sucesso!', 'Bem-vindo ao Programa de Pontos! Seu cadastro foi realizado com sucesso.');
-                    form.reset();
-                    form.classList.remove('was-validated');
-                    
-                    // Remover classes de validação
-                    const inputs = form.querySelectorAll('.form-control');
-                    inputs.forEach(input => {
-                        input.classList.remove('is-valid', 'is-invalid');
-                    });
-                } else {
-                    mostrarToast('error', 'Erro!', `Erro ao cadastrar: ${resultado.error}`);
-                }
-            }
+            showToast('Cadastro realizado com sucesso! Bem-vindo ao Programa de Pontos!', 'success');
             
-            // Reabilitar botão
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        } else {
-            mostrarToast('error', 'Erro!', 'Por favor, corrija os campos destacados antes de continuar.');
+            // Limpar formulário
+            form.reset();
+            form.classList.remove('was-validated');
+            
+        } catch (error) {
+            console.error('Erro ao cadastrar cliente:', error);
+            showToast('Erro ao realizar cadastro. Tente novamente.', 'error');
         }
     });
-    
-    // Remover classe de validação quando o usuário começar a digitar
-    const inputs = form.querySelectorAll('.form-control');
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            if (this.classList.contains('is-invalid')) {
-                limparErroCampo(this.id);
-            }
+
+    // Função para validar email
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    // Função para mostrar toast
+    function showToast(message, type = 'info') {
+        const toastContainer = document.querySelector('.toast-container');
+        const toastId = 'toast-' + Date.now();
+        
+        const bgClass = type === 'success' ? 'bg-success' : 
+                       type === 'error' ? 'bg-danger' : 'bg-info';
+        
+        const toastHTML = `
+            <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+        
+        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+        
+        const toastElement = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastElement, {
+            autohide: true,
+            delay: 5000
         });
-    });
+        
+        toast.show();
+        
+        // Remove o elemento do DOM após ser ocultado
+        toastElement.addEventListener('hidden.bs.toast', function() {
+            toastElement.remove();
+        });
+    }
 });
