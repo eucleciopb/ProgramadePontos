@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resgate de Pontos - Programa de Pontos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #e9ecef 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .resgate-card {
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 6px 32px rgba(44,62,80,.08), 0 1.5px 8px rgba(44,62,80,.06);
+      padding: 2.5rem 2rem 2rem 2rem;
+      max-width: 480px;
+      width: 100%;
+      transition: box-shadow .25s;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.7rem;
+      font-weight: bold;
+      margin-bottom: 1.2rem;
+      color: #198754;
+    }
+    .form-label {
+      font-weight: 600;
+      color: #444;
+    }
+    .form-control, .form-select {
+      border-radius: 0.75rem;
+      border: 1.5px solid #e6e6e6;
+      font-size: 1rem;
+      padding: 0.7rem 1rem;
+      transition: border-color .18s;
+      box-shadow: none;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #198754;
+      box-shadow: 0 0 0 1.5px #19875433;
+      outline: none;
+      background: #fff8f8;
+      transition: background 0.2s;
+    }
+    .form-readonly {
+      background: #f6f6f6;
+      border: none;
+      font-weight: bold;
+      color: #198754;
+    }
+    .btn-success {
+      border-radius: 0.75rem;
+      font-weight: bold;
+      font-size: 1.09rem;
+      padding: 0.6rem 1rem;
+      letter-spacing: .01em;
+      margin-top: 0.8rem;
+      background: #198754;
+      border: none;
+      box-shadow: 0 2px 8px rgba(25,135,84,0.09);
+      transition: background 0.19s, transform .17s;
+    }
+    .btn-success:hover, .btn-success:focus {
+      background: #145c35 !important;
+      transform: scale(1.03);
+    }
+    .btn-disabled {
+      background: #cccccc !important;
+      color: #888888 !important;
+      border: none !important;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+    .logout {
+      margin-top: 1.5rem;
+      font-size: .97rem;
+      color: #dc3545;
+      cursor: pointer;
+    }
+    .logout:hover { text-decoration: underline; }
+    #user-info {
+      margin-bottom: 1.3rem;
+      font-size: 0.97rem;
+      color: #343a40;
+    }
+    .saldo-info {
+      color: #198754;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="resgate-card">
+    <div id="user-info">Carregando usuário...</div>
+    <h2>Resgate de Pontos</h2>
+    <form id="resgateForm" autocomplete="off">
+      <div class="mb-3 text-start">
+        <label class="form-label">Telefone do Cliente</label>
+        <input type="tel" class="form-control" id="telefone" required placeholder="(xx) xxxxx-xxxx" maxlength="15"/>
+      </div>
+      <div class="mb-3 text-start">
+        <label class="form-label">Nome do Cliente</label>
+        <input type="text" class="form-control form-readonly" id="nomeCliente" readonly />
+      </div>
+      <div class="mb-3 text-start">
+        <label class="form-label">Saldo Atual</label>
+        <input type="text" class="form-control form-readonly saldo-info" id="saldoCliente" readonly />
+      </div>
+      <div class="mb-3 text-start">
+        <label class="form-label">Produto para Resgate</label>
+        <select class="form-select" id="produtoResgate" required>
+          <option value="">Selecione um produto</option>
+        </select>
+      </div>
+      <div class="mb-3 text-start">
+        <label class="form-label">Pontos Necessários</label>
+        <input type="text" class="form-control form-readonly" id="pontosProduto" readonly />
+      </div>
+      <button type="submit" id="btnResgatar" class="btn btn-success w-100" disabled>Resgatar Produto</button>
+    </form>
+    <div id="msg-resgate" style="margin-top: 1.3rem;"></div>
+    <div class="logout" onclick="logout()">Sair</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs,
+      updateDoc,
+      doc,
+      increment,
+      addDoc,
+      Timestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // CONFIG FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyBoEFGxMUgb-MUbWpNzRbUEpEQDXes4wcc",
+      authDomain: "programa-de-pontos-nh.firebaseapp.com",
+      projectId: "programa-de-pontos-nh",
+      storageBucket: "programa-de-pontos-nh.firebasestorage.app",
+      messagingSenderId: "136030554657",
+      appId: "1:136030554657:web:9bc5561eddc658ab087160",
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Exibe usuário logado
+    const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
+    const nivel = sessionStorage.getItem("nivel_atual") || "-";
+    document.getElementById("user-info").innerHTML =
+      `<b>Usuário:</b> ${nome}<br><b>Nível:</b> ${nivel}`;
+
+    let clienteDocId = null;
+    let saldoAtual = 0;
+    let produtosResgate = [];
+    let produtosResgatadosNoMes = [];
+
+    // Função para buscar produtos que o cliente NÃO resgatou no mês corrente
+    async function carregarProdutosDisponiveisParaCliente(clienteId) {
+      const produtosSnap = await getDocs(collection(db, "produtos_resgate"));
+      produtosResgate = [];
+      produtosSnap.forEach((docSnap) => {
+        const p = docSnap.data();
+        produtosResgate.push({ id: docSnap.id, ...p });
+      });
+
+      if (!clienteId) {
+        popularSelectProdutos(produtosResgate);
+        return;
+      }
+
+      // Definir início e fim do mês atual
+      const agora = new Date();
+      const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1, 0, 0, 0, 0);
+      const inicioProxMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 1, 0, 0, 0, 0);
+
+      // Buscar resgates desse cliente neste mês
+      const resgatesSnap = await getDocs(
+        query(
+          collection(db, "resgates"),
+          where("clienteId", "==", clienteId),
+          where("dataResgate", ">=", Timestamp.fromDate(inicioMes)),
+          where("dataResgate", "<", Timestamp.fromDate(inicioProxMes))
+        )
+      );
+      produtosResgatadosNoMes = [];
+      resgatesSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        produtosResgatadosNoMes.push(data.produtoId);
+      });
+
+      const disponiveis = produtosResgate.filter(p => !produtosResgatadosNoMes.includes(p.id));
+      popularSelectProdutos(disponiveis);
+
+      if (disponiveis.length === 0) {
+        document.getElementById("msg-resgate").innerHTML = "<span class='text-danger'>Você já resgatou todos os produtos permitidos neste mês.</span>";
+        document.getElementById("btnResgatar").disabled = true;
+        document.getElementById("btnResgatar").classList.add('btn-disabled');
+      } else {
+        document.getElementById("msg-resgate").innerHTML = "";
+      }
+    }
+
+    function popularSelectProdutos(lista) {
+      const select = document.getElementById("produtoResgate");
+      select.innerHTML = `<option value="">Selecione um produto</option>`;
+      lista.forEach(p => {
+        select.innerHTML += `<option value="${p.id}" data-pontos="${p.pontos}" data-nome="${p.nome}">${p.nome}</option>`;
+      });
+      document.getElementById("pontosProduto").value = "";
+      atualizarBotao();
+    }
+
+    document.getElementById("telefone").addEventListener("input", () => {
+      document.getElementById("nomeCliente").value = '';
+      document.getElementById("saldoCliente").value = '';
+      document.getElementById("msg-resgate").innerHTML = '';
+      clienteDocId = null;
+      saldoAtual = 0;
+      carregarProdutosDisponiveisParaCliente(null);
+      atualizarBotao();
+    });
+
+    document.getElementById("telefone").addEventListener("blur", async (e) => {
+      const telefone = e.target.value.trim();
+      if (!telefone) return;
+      const q = query(collection(db, "clientes"), where("telefone", "==", telefone));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const data = snap.docs[0].data();
+        clienteDocId = snap.docs[0].id;
+        document.getElementById("nomeCliente").value = data.nome;
+        saldoAtual = (data.pontos_gerados || 0) - (data.pontos_resgatados || 0);
+        document.getElementById("saldoCliente").value = saldoAtual.toLocaleString("pt-BR", {minimumFractionDigits:2});
+        await carregarProdutosDisponiveisParaCliente(clienteDocId);
+      } else {
+        document.getElementById("nomeCliente").value = "Cliente não cadastrado";
+        document.getElementById("saldoCliente").value = "";
+        clienteDocId = null;
+        saldoAtual = 0;
+        carregarProdutosDisponiveisParaCliente(null);
+      }
+      atualizarBotao();
+    });
+
+    document.getElementById("produtoResgate").addEventListener("change", function() {
+      const produtoId = this.value;
+      const produto = produtosResgate.find(p => p.id === produtoId);
+      document.getElementById("pontosProduto").value = produto ? produto.pontos : "";
+      atualizarBotao();
+    });
+
+    function atualizarBotao() {
+      const produtoId = document.getElementById("produtoResgate").value;
+      const produto = produtosResgate.find(p => p.id === produtoId);
+      const btn = document.getElementById("btnResgatar");
+      if (!clienteDocId || !produto) {
+        btn.disabled = true;
+        btn.classList.add('btn-disabled');
+        btn.textContent = "Resgatar Produto";
+        return;
+      }
+      if (saldoAtual < produto.pontos) {
+        btn.disabled = true;
+        btn.classList.add('btn-disabled');
+        btn.classList.remove('btn-success');
+        btn.textContent = "Sem saldo";
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('btn-disabled');
+        btn.classList.add('btn-success');
+        btn.textContent = "Resgatar Produto";
+      }
+    }
+
+    document.getElementById("resgateForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const produtoId = document.getElementById("produtoResgate").value;
+      const produto = produtosResgate.find(p => p.id === produtoId);
+      if (!clienteDocId || !produto) return;
+
+      if (saldoAtual < produto.pontos) {
+        document.getElementById("msg-resgate").innerHTML = "<span class='text-danger'>Saldo insuficiente para resgatar este produto.</span>";
+        return;
+      }
+
+      // Checa de novo no banco se já resgatou esse produto esse mês (EVITA DUPLO RESGATE RAPIDO!)
+      const agora = new Date();
+      const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1, 0, 0, 0, 0);
+      const inicioProxMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 1, 0, 0, 0, 0);
+      const checaResgate = await getDocs(
+        query(
+          collection(db, "resgates"),
+          where("clienteId", "==", clienteDocId),
+          where("produtoId", "==", produtoId),
+          where("dataResgate", ">=", Timestamp.fromDate(inicioMes)),
+          where("dataResgate", "<", Timestamp.fromDate(inicioProxMes))
+        )
+      );
+      if (!checaResgate.empty) {
+        document.getElementById("msg-resgate").innerHTML = "<span class='text-danger'>Este produto já foi resgatado para este cliente neste mês!</span>";
+        await carregarProdutosDisponiveisParaCliente(clienteDocId);
+        return;
+      }
+
+      const senhaCliente = prompt("Digite a senha do cliente para confirmar:");
+      if (!senhaCliente) return;
+      const clienteSnap = await getDocs(query(collection(db, "clientes"), where("__name__", "==", clienteDocId), where("senha", "==", senhaCliente)));
+      if (clienteSnap.empty) {
+        document.getElementById("msg-resgate").innerHTML = "<span class='text-danger'>Senha incorreta!</span>";
+        return;
+      }
+
+      // Atualiza pontos resgatados
+      await updateDoc(doc(db, "clientes", clienteDocId), {
+        pontos_resgatados: increment(produto.pontos)
+      });
+
+      // Grava o resgate na coleção "resgates"
+      await addDoc(collection(db, "resgates"), {
+        clienteId: clienteDocId,
+        produtoId: produtoId,
+        nomeCliente: document.getElementById("nomeCliente").value,
+        nomeProduto: produto.nome,
+        dataResgate: Timestamp.fromDate(new Date())
+      });
+
+      // Atualiza saldo local
+      saldoAtual -= produto.pontos;
+
+      sessionStorage.setItem("resgate_nome", document.getElementById("nomeCliente").value);
+      sessionStorage.setItem("resgate_produto", produto.nome);
+      sessionStorage.setItem("resgate_saldo", saldoAtual.toLocaleString("pt-BR", {minimumFractionDigits:2}));
+      window.location.href = "resgate-sucesso.html";
+    });
+
+    window.logout = function() {
+      sessionStorage.clear();
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

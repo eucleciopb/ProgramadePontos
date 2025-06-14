@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Clientes - Programa de Pontos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      :root {
+        --gp-primary: #198754; /* verde */
+        --gp-danger: #dc3545; /* vermelho */
+        --gp-bg: #f8f9fa; /* branco/cinza claro */
+      }
+      body {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        min-height: 100vh;
+        font-family: "Segoe UI", sans-serif;
+        padding: 2rem;
+      }
+      .card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      }
+      .card-title {
+        font-weight: 600;
+        color: var(--gp-primary);
+      }
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--gp-primary);
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.18);
+      }
+      .btn-primary {
+        background-color: var(--gp-primary);
+        border: none;
+        font-weight: 500;
+      }
+      .btn-danger {
+        background-color: var(--gp-danger);
+        border: none;
+      }
+      .btn-outline-primary {
+        color: var(--gp-primary);
+        border-color: var(--gp-primary);
+      }
+      .btn-outline-primary:hover {
+        background-color: var(--gp-primary);
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row g-4">
+        <!-- Formulário -->
+        <div class="col-md-5">
+          <div class="card p-4">
+            <h2 class="card-title text-center mb-4" id="formTitle">Cadastro de Cliente</h2>
+            <form id="clienteForm" novalidate autocomplete="off">
+              <input type="hidden" id="clienteId" />
+              <div class="mb-3">
+                <label for="telefone" class="form-label">Telefone</label>
+                <input type="tel" class="form-control" id="telefone" required maxlength="15" placeholder="(99) 99999-9999"/>
+              </div>
+              <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="nome" required style="text-transform: uppercase;" />
+              </div>
+              <div class="mb-3">
+                <label for="sobrenome" class="form-label">Sobrenome</label>
+                <input type="text" class="form-control" id="sobrenome" required style="text-transform: uppercase;" />
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">E-mail</label>
+                <input type="email" class="form-control" id="email" required style="text-transform: lowercase;" />
+              </div>
+              <div class="mb-3">
+                <label for="senha" class="form-label">Senha</label>
+                <input type="password" class="form-control" id="senha" required minlength="4" maxlength="20"/>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Salvar Cliente</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Lista de clientes -->
+        <div class="col-md-7">
+          <div class="card p-4">
+            <h2 class="card-title mb-3">Clientes Cadastrados</h2>
+            <div class="table-responsive">
+              <table class="table table-bordered table-sm align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Telefone</th>
+                    <th>Nome</th>
+                    <th>Sobrenome</th>
+                    <th>E-mail</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="clientesTabela"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        doc,
+        getDoc,
+        getDocs,
+        addDoc,
+        updateDoc,
+        deleteDoc,
+        onSnapshot,
+        serverTimestamp,
+        query,
+        where
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBoEFGxMUgb-MUbWpNzRbUEpEQDXes4wcc",
+        authDomain: "programa-de-pontos-nh.firebaseapp.com",
+        projectId: "programa-de-pontos-nh",
+        storageBucket: "programa-de-pontos-nh.firebasestorage.app",
+        messagingSenderId: "136030554657",
+        appId: "1:136030554657:web:9bc5561eddc658ab087160",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const form = document.getElementById("clienteForm");
+      const tabela = document.getElementById("clientesTabela");
+      const clienteId = document.getElementById("clienteId");
+      const formTitle = document.getElementById("formTitle");
+
+      // CRUD
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const telefone = document.getElementById("telefone").value.trim();
+        const nome = document.getElementById("nome").value.trim().toUpperCase();
+        const sobrenome = document.getElementById("sobrenome").value.trim().toUpperCase();
+        const email = document.getElementById("email").value.trim().toLowerCase();
+        const senha = document.getElementById("senha").value.trim();
+
+        // Verifica duplicidade de telefone e e-mail
+        let temDuplicado = false;
+
+        // Busca por telefone
+        let q = query(collection(db, "clientes"), where("telefone", "==", telefone));
+        let snap = await getDocs(q);
+        snap.forEach((docu) => {
+          if (!clienteId.value || clienteId.value !== docu.id) temDuplicado = true;
+        });
+
+        // Busca por e-mail
+        q = query(collection(db, "clientes"), where("email", "==", email));
+        snap = await getDocs(q);
+        snap.forEach((docu) => {
+          if (!clienteId.value || clienteId.value !== docu.id) temDuplicado = true;
+        });
+
+        if (temDuplicado) {
+          alert("Já existe um cliente com este telefone ou e-mail!");
+          return;
+        }
+
+        const cliente = { telefone, nome, sobrenome, email, senha, criado_em: serverTimestamp() };
+
+        try {
+          if (clienteId.value) {
+            await updateDoc(doc(db, "clientes", clienteId.value), cliente);
+            alert("Cliente atualizado!");
+          } else {
+            await addDoc(collection(db, "clientes"), cliente);
+            alert("Cliente salvo!");
+          }
+          form.reset();
+          clienteId.value = "";
+          formTitle.innerText = "Cadastro de Cliente";
+        } catch (err) {
+          console.error(err);
+          alert("Erro ao salvar cliente.");
+        }
+      });
+
+      function carregarClientes() {
+        onSnapshot(collection(db, "clientes"), (snapshot) => {
+          tabela.innerHTML = "";
+          snapshot.forEach((docSnap) => {
+            const c = docSnap.data();
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${c.telefone}</td>
+              <td>${c.nome}</td>
+              <td>${c.sobrenome}</td>
+              <td>${c.email}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-2" onclick="editarCliente('${docSnap.id}')">Editar</button>
+                <button class="btn btn-sm btn-danger" onclick="excluirCliente('${docSnap.id}')">Excluir</button>
+              </td>`;
+            tabela.appendChild(tr);
+          });
+        });
+      }
+
+      carregarClientes();
+
+      window.editarCliente = async (id) => {
+        const ref = doc(db, "clientes", id);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const c = snap.data();
+          clienteId.value = id;
+          document.getElementById("telefone").value = c.telefone;
+          document.getElementById("nome").value = c.nome;
+          document.getElementById("sobrenome").value = c.sobrenome;
+          document.getElementById("email").value = c.email;
+          document.getElementById("senha").value = c.senha;
+          formTitle.innerText = "Editar Cliente";
+        }
+      };
+
+      window.excluirCliente = async (id) => {
+        if (confirm("Deseja excluir este cliente?")) {
+          await deleteDoc(doc(db, "clientes", id));
+        }
+      };
+    </script>
+  </body>
+</html>

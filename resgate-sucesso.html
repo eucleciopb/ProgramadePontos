@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resgate Realizado!</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #e9ecef 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sucesso-card {
+      background: #fff;
+      border-radius: 2.2rem;
+      box-shadow: 0 8px 32px rgba(30,140,100,0.08);
+      padding: 2.8rem 2.8rem 2.5rem 2.8rem;
+      max-width: 460px;
+      text-align: center;
+    }
+    .sucesso-title {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #169550;
+      margin-bottom: 1.4rem;
+      letter-spacing: -1px;
+    }
+    .sucesso-msg {
+      font-size: 1.20rem;
+      margin-bottom: 1.6rem;
+      font-weight: 500;
+      color: #2a2d2f;
+    }
+    .sucesso-msg b { color: #169550; }
+    .sucesso-saldo {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #169550;
+      margin-bottom: 2.2rem;
+    }
+    .sucesso-actions {
+      display: flex;
+      gap: 1.1rem;
+      justify-content: center;
+      align-items: center;
+    }
+    .btn-sucesso {
+      background: #169550;
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border-radius: 1.2rem;
+      border: none;
+      padding: 0.85rem 2.5rem;
+      transition: background 0.16s, transform 0.15s;
+      box-shadow: 0 2px 10px rgba(22, 149, 80, 0.10);
+      outline: none;
+    }
+    .btn-sucesso:hover, .btn-sucesso:focus {
+      background: #14623c;
+      transform: scale(1.03);
+      color: #fff;
+    }
+    .btn-menu {
+      background: #fff;
+      color: #169550;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border: 2px solid #169550;
+      border-radius: 1.2rem;
+      padding: 0.85rem 2.5rem;
+      transition: background 0.16s, color 0.15s, border 0.15s;
+      box-shadow: none;
+      outline: none;
+    }
+    .btn-menu:hover, .btn-menu:focus {
+      background: #169550;
+      color: #fff;
+    }
+    @media (max-width: 600px) {
+      .sucesso-card { padding: 1.2rem 0.3rem 1rem 0.3rem; }
+      .sucesso-title { font-size: 1.5rem; }
+      .sucesso-msg, .sucesso-saldo { font-size: 1.07rem; }
+      .btn-sucesso, .btn-menu { padding: 0.67rem 1.1rem; font-size: 1.01rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sucesso-card">
+    <div class="sucesso-title">Resgate Realizado!</div>
+    <div class="sucesso-msg" id="msg">
+      <!-- Conteúdo preenchido via JS -->
+    </div>
+    <div class="sucesso-actions">
+      <button class="btn-sucesso" onclick="novoResgate()">Novo Resgate</button>
+      <button class="btn-menu" onclick="irMenu()">Menu</button>
+    </div>
+  </div>
+  <script>
+    // Recupera dados do resgate do sessionStorage
+    const nome = (sessionStorage.getItem("resgate_nome") || "").toUpperCase();
+    const produto = sessionStorage.getItem("resgate_produto") || "";
+    const saldo = sessionStorage.getItem("resgate_saldo") || "0,00";
+    document.getElementById("msg").innerHTML =
+      `<b>${nome}</b>, seu resgate do produto <b>${produto}</b> foi realizado com sucesso!<br>
+       Seu saldo agora é <b class="sucesso-saldo">${saldo} pontos.</b>`;
+
+    function novoResgate() {
+      window.location.href = "resgate-produtos.html";
+    }
+    function irMenu() {
+      window.location.href = "menu.html";
+    }
+  </script>
+</body>
+</html>

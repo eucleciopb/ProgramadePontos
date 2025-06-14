@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parabéns - Programa de Pontos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body { 
+      background: linear-gradient(135deg, #f8fafc 0%, #e9ecef 100%);
+      min-height: 100vh; 
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .parabens-card {
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 6px 32px rgba(44,62,80,.08);
+      padding: 2.2rem 2.2rem 2rem 2.2rem;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 { color: #198754; font-weight: 700; margin-bottom: 1.3rem;}
+    .big { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.2rem;}
+    .btn-back {
+      margin-top: 2rem;
+      border-radius: .7rem;
+      font-weight: bold;
+      background: #198754;
+      color: #fff;
+      border: none;
+      padding: .65rem 1.2rem;
+      transition: background .16s;
+    }
+    .btn-back:hover { background: #145c35; }
+  </style>
+</head>
+<body>
+  <div class="parabens-card">
+    <h2>Parabéns!</h2>
+    <div class="big" id="msg"></div>
+    <button class="btn btn-back" onclick="window.location.href='menu.html'">Voltar</button>
+  </div>
+  <script>
+    const nome = sessionStorage.getItem("parabens_nome") || "Cliente";
+    const ganhos = sessionStorage.getItem("parabens_ganhos") || "0,00";
+    const saldo = sessionStorage.getItem("parabens_saldo") || "0,00";
+    document.getElementById("msg").innerHTML = `
+      <b>${nome}</b>, você ganhou <b>${ganhos} pontos</b>!<br>
+      Seu saldo atual é <b>${saldo} pontos</b>.
+    `;
+  </script>
+</body>
+</html>
