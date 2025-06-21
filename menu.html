@@ -1,4 +1,4 @@
-      <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -65,6 +65,11 @@
       transition: background 0.2s;
     }
     .btn-excluir:hover { background-color: #a22; }
+    .nenhum-registro {
+      text-align: center;
+      color: #888;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -116,7 +121,9 @@
               <th>Ações</th>
             </tr>
           </thead>
-          <tbody id="tabelaNotas"></tbody>
+          <tbody id="tabelaNotas">
+            <tr><td colspan="7" class="nenhum-registro">Carregando...</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -138,7 +145,9 @@
               <th>Operador</th>
             </tr>
           </thead>
-          <tbody id="tabelaTrocas"></tbody>
+          <tbody id="tabelaTrocas">
+            <tr><td colspan="5" class="nenhum-registro">Carregando...</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -181,19 +190,30 @@
     // --- Tabela de Pontos ---
     async function carregarNotas() {
       const ref = collection(db, "notas_pontos");
-      const q = query(ref, orderBy("data_ordem", "desc"), limit(20));
+      let q;
+      try {
+        q = query(ref, orderBy("data_ordem", "desc"), limit(20));
+      } catch {
+        // fallback: caso não exista o campo data_ordem
+        q = query(ref, orderBy("data", "desc"), limit(20));
+      }
       const snapshot = await getDocs(q);
       const tabela = document.getElementById("tabelaNotas");
       tabela.innerHTML = "";
+      if (snapshot.empty) {
+        tabela.innerHTML = `<tr><td colspan="7" class="nenhum-registro">Nenhum registro encontrado.</td></tr>`;
+        return;
+      }
       snapshot.forEach(docSnap => {
         const n = docSnap.data();
         const id = docSnap.id;
         const clienteId = n.clienteId || "";
+        const dataExibir = n.data || "";
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${n.cliente || ""}</td>
           <td>${n.nota || ""}</td>
-          <td>${n.data || ""}</td>
+          <td>${dataExibir}</td>
           <td>R$ ${(n.total_venda || 0).toLocaleString("pt-BR", {minimumFractionDigits:2})}</td>
           <td>${n.pontos || ""}</td>
           <td>${n.operador || ""}</td>
@@ -216,16 +236,24 @@
       }
       carregarNotas();
     }
-    // Torna a função global (importante!)
     window.excluirNota = excluirNota;
 
     // --- Tabela de Trocas ---
     async function carregarTrocas() {
       const ref = collection(db, "trocas_produtos");
-      const q = query(ref, orderBy("data_ordem", "desc"), limit(20));
+      let q;
+      try {
+        q = query(ref, orderBy("data_ordem", "desc"), limit(20));
+      } catch {
+        q = query(ref, orderBy("data", "desc"), limit(20));
+      }
       const snapshot = await getDocs(q);
       const tabela = document.getElementById("tabelaTrocas");
       tabela.innerHTML = "";
+      if (snapshot.empty) {
+        tabela.innerHTML = `<tr><td colspan="5" class="nenhum-registro">Nenhum registro encontrado.</td></tr>`;
+        return;
+      }
       snapshot.forEach(docSnap => {
         const t = docSnap.data();
         const tr = document.createElement("tr");
