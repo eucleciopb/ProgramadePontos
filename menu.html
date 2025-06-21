@@ -2,213 +2,106 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Menu - Programa de Pontos</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <title>Últimos Resgates</title>
   <style>
-    body {
-      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-      font-family: 'Segoe UI', sans-serif;
-      min-height: 100vh;
-      padding: 1.5rem;
-    }
-    .menu-card {
-      background: #ffffff;
-      border-radius: 2rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-    .user-info {
-      font-size: 0.95rem;
-      color: #334155;
-      background: #f1f5f9;
-      padding: 0.8rem;
-      border-radius: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .btn-menu {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      font-size: 1.05rem;
-      font-weight: 500;
-      padding: 0.8rem 1rem;
-      border-radius: 1.2rem;
-      margin-bottom: 0.75rem;
-    }
-    .section-title {
-      font-weight: bold;
-      margin-bottom: 1rem;
-      color: #1e293b;
-    }
-    .logout {
-      color: #dc3545;
-      font-size: 0.95rem;
-      margin-top: 1.4rem;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .logout:hover { opacity: 0.7; }
-    table {
-      font-size: 0.85rem;
-    }
+    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+    th { background-color: #f0f0f0; }
+    h3 { color: #333; }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="menu-card">
-      <h1 class="text-center">📲 Programa de Pontos</h1>
-      <div id="user-info" class="user-info">Carregando usuário...</div>
 
-      <a href="cadastrocliente.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-user-plus"></i> Cadastro de Clientes
-      </a>
-      <a href="cadastrooperadores.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-users-gear"></i> Cadastro de Operadores
-      </a>
-      <a href="CadastrodeProdutos.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-box-open"></i> Cadastro de Produtos
-      </a>
-      <a href="geradordepontos.html" class="btn btn-outline-success btn-menu">
-        <i class="fa-solid fa-bolt"></i> Gerador de Pontos
-      </a>
-      <a href="resgate-produtos.html" class="btn btn-outline-danger btn-menu">
-        <i class="fa-solid fa-gift"></i> Resgate de Produtos
-      </a>
-
-      <div class="logout" onclick="logout()">
-        <i class="fa-solid fa-right-from-bracket"></i> Sair
-      </div>
-    </div>
-
-    <!-- Últimas notas com pontos -->
-    <div class="menu-card">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="section-title">📄 Últimas 20 Notas com Pontos</div>
-        <button class="btn btn-sm btn-outline-secondary" onclick="exportarExcel('notas')">Exportar Excel</button>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-          <thead class="table-light">
-            <tr>
-              <th>Cliente</th>
-              <th>Nota Fiscal</th>
-              <th>Data</th>
-              <th>Total Venda</th>
-              <th>Pontos Gerados</th>
-            </tr>
-          </thead>
-          <tbody id="tabelaNotas"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Últimas trocas -->
-    <div class="menu-card">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="section-title">🎁 Últimas 20 Trocas de Produtos</div>
-        <button class="btn btn-sm btn-outline-secondary" onclick="exportarExcel('trocas')">Exportar Excel</button>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-          <thead class="table-light">
-            <tr>
-              <th>Cliente</th>
-              <th>Produto</th>
-              <th>Data</th>
-              <th>Pontos Trocados</th>
-            </tr>
-          </thead>
-          <tbody id="tabelaTrocas"></tbody>
-        </table>
-      </div>
-    </div>
+  <div id="ultimosResgates">
+    <h3>Últimos 20 Resgates</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Produto</th>
+          <th>Pontos</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="resgatesTabela">
+        <tr><td colspan="4">Carregando...</td></tr>
+      </tbody>
+    </table>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      query,
-      orderBy,
-      limit,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+  <script>
+    // Configuração do Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyBoEFGxMUgb-MUbWpNzRbUEpEQDXes4wcc",
-      authDomain: "programa-de-pontos-nh.firebaseapp.com",
-      projectId: "programa-de-pontos-nh",
-      storageBucket: "programa-de-pontos-nh.firebasestorage.app",
-      messagingSenderId: "136030554657",
-      appId: "1:136030554657:web:9bc5561eddc658ab087160"
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      projectId: "SEU_PROJETO",
+      storageBucket: "SEU_PROJETO.appspot.com",
+      messagingSenderId: "SEU_ID",
+      appId: "SUA_APP_ID"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
-    const nivel = sessionStorage.getItem("nivel_atual") || "-";
-    const loginAnterior = localStorage.getItem("login_anterior") || "Não registrado";
-    document.getElementById("user-info").innerHTML = `
-      <b>Usuário:</b> ${nome}<br>
-      <b>Nível:</b> ${nivel}<br>
-      <b>Último login:</b> ${loginAnterior}
-    `;
-
-    async function carregarNotas() {
-      const ref = collection(db, "notas_pontos");
-      const q = query(ref, orderBy("data", "desc"), limit(20));
-      const snapshot = await getDocs(q);
-      const tabela = document.getElementById("tabelaNotas");
-      tabela.innerHTML = "";
-      snapshot.forEach(doc => {
-        const n = doc.data();
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${n.cliente}</td>
-          <td>${n.nota}</td>
-          <td>${n.data}</td>
-          <td>R$ ${n.total_venda?.toFixed(2) || 0}</td>
-          <td>${n.pontos}</td>
-        `;
-        tabela.appendChild(tr);
-      });
+    // Função para formatar timestamp
+    function formatarData(timestamp) {
+      const data = timestamp.toDate();
+      return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR');
     }
 
-    async function carregarTrocas() {
-      const ref = collection(db, "trocas_produtos");
-      const q = query(ref, orderBy("data", "desc"), limit(20));
-      const snapshot = await getDocs(q);
-      const tabela = document.getElementById("tabelaTrocas");
-      tabela.innerHTML = "";
-      snapshot.forEach(doc => {
-        const t = doc.data();
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${t.cliente}</td>
-          <td>${t.produto}</td>
-          <td>${t.data}</td>
-          <td>${t.pontos}</td>
-        `;
-        tabela.appendChild(tr);
-      });
+    // Carregar últimos resgates
+    async function carregarUltimosResgates() {
+      const tabela = document.getElementById('resgatesTabela');
+      tabela.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+
+      try {
+        const snapshot = await db.collection('resgates')
+          .orderBy('dataResgate', 'desc')
+          .limit(20)
+          .get();
+
+        tabela.innerHTML = '';
+
+        for (const doc of snapshot.docs) {
+          const resgate = doc.data();
+
+          const cliente = resgate.nomeCliente || '---';
+          const produto = resgate.nomeProduto || '---';
+          const produtoId = resgate.produtoId;
+          const data = resgate.dataResgate ? formatarData(resgate.dataResgate) : '---';
+
+          // Buscar pontos do produto
+          let pontos = '---';
+          try {
+            const produtoDoc = await db.collection('produtos_resgate').doc(produtoId).get();
+            if (produtoDoc.exists) {
+              pontos = produtoDoc.data().pontos ?? '---';
+            }
+          } catch (erro) {
+            console.warn('Erro ao buscar produto:', produtoId);
+          }
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${cliente}</td>
+            <td>${produto}</td>
+            <td>${pontos}</td>
+            <td>${data}</td>
+          `;
+          tabela.appendChild(tr);
+        }
+
+      } catch (error) {
+        console.error('Erro ao carregar resgates:', error);
+        tabela.innerHTML = '<tr><td colspan="4">Erro ao carregar dados</td></tr>';
+      }
     }
 
-    window.logout = function () {
-      sessionStorage.clear();
-      window.location.href = "index.html";
-    }
-
-    window.exportarExcel = function (tipo) {
-      alert(`Função de exportação para '${tipo}' será implementada.`);
-    }
-
-    carregarNotas();
-    carregarTrocas();
+    document.addEventListener('DOMContentLoaded', carregarUltimosResgates);
   </script>
 </body>
 </html>
