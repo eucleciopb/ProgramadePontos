@@ -112,14 +112,41 @@
   <script type="module">
     const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
-    const hora = new Date().toLocaleString("pt-BR");
 
-    document.getElementById("user-info").innerHTML =
-      `<b>Usuário:</b> ${nome}<br><b>Nível:</b> ${nivel}<br><b>Último login:</b> ${hora}`;
+    const agora = new Date();
+    const hoje = agora.toISOString().split('T')[0]; // YYYY-MM-DD
+    const horaCompleta = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    const dataHoraAtual = `${hoje} ${horaCompleta}`;
+
+    let ultimoLogin = localStorage.getItem("data_ultimo_login");
+
+    if (ultimoLogin !== hoje) {
+      if (localStorage.getItem("data_hora_login_atual")) {
+        localStorage.setItem("ultimo_login_anterior", localStorage.getItem("data_hora_login_atual"));
+      }
+      localStorage.setItem("data_ultimo_login", hoje);
+      localStorage.setItem("data_hora_login_atual", dataHoraAtual);
+    }
+
+    const loginAnterior = localStorage.getItem("ultimo_login_anterior") || "Não registrado";
+
+    function formatarDataHora(isoData) {
+      if (!isoData.includes(" ")) return isoData;
+      const [data, hora] = isoData.split(" ");
+      const [ano, mes, dia] = data.split("-");
+      return `${dia}/${mes}/${ano} às ${hora}`;
+    }
+
+    document.getElementById("user-info").innerHTML = `
+      <b>Usuário:</b> ${nome}<br>
+      <b>Nível:</b> ${nivel}<br>
+      <b>Último login:</b> ${formatarDataHora(loginAnterior)}
+    `;
 
     window.logout = function () {
       sessionStorage.clear();
-      window.location.href = "login.html";
+      window.location.href = "index.html"; // redireciona para index
     }
   </script>
 </body>
