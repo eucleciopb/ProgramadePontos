@@ -1,198 +1,153 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cadastro de Produtos - Programa de Pontos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <style>
-      :root {
-        --gp-primary: #dc3545; /* vermelho */
-        --gp-success: #198754; /* verde */
-        --gp-bg: #f8f9fa; /* branco/cinza claro */
-      }
-      body {
-        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-        min-height: 100vh;
-        font-family: "Segoe UI", sans-serif;
-        padding: 2rem;
-      }
-      .card {
-        border: none;
-        border-radius: 1rem;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-      }
-      .card-title {
-        font-weight: 600;
-        color: var(--gp-primary);
-      }
-      .form-control:focus,
-      .form-select:focus {
-        border-color: var(--gp-primary);
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-      }
-      .btn-primary {
-        background-color: var(--gp-primary);
-        border: none;
-        font-weight: 500;
-      }
-      .btn-success {
-        background-color: var(--gp-success);
-        border: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="row g-4">
-        <!-- Formulário -->
-        <div class="col-md-5">
-          <div class="card p-4">
-            <h2 class="card-title text-center mb-4" id="formTitle">Cadastro de Produto</h2>
-            <form id="produtoForm" novalidate>
-              <input type="hidden" id="produtoId" />
-              <div class="mb-3">
-                <label for="nomeProduto" class="form-label">Nome do Produto</label>
-                <input type="text" class="form-control" id="nomeProduto" required />
-              </div>
-              <div class="mb-3">
-                <label for="imagem" class="form-label">Url da Imagem Internet</label>
-                <input type="text" class="form-control" id="imagem" required />
-              </div>
-              <div class="mb-3">
-                <label for="pontos" class="form-label">Pontos de Resgate</label>
-                <input type="number" class="form-control" id="pontos" min="1" required />
-              </div>
-              <div class="mb-3">
-                <label for="codBarras" class="form-label">Código de Barras</label>
-                <input type="text" class="form-control" id="codBarras" required />
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Salvar Produto</button>
-            </form>
-          </div>
-        </div>
-
-        <!-- Lista de produtos -->
-        <div class="col-md-7">
-          <div class="card p-4">
-            <h2 class="card-title mb-3">Produtos para Resgate</h2>
-            <div class="table-responsive">
-              <table class="table table-bordered table-sm align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Produto</th>
-                    <th>Imagem</th>
-                    <th>Pontos</th>
-                    <th>Cód. Barras</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="produtosTabela"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Produtos para Resgate - Programa de Pontos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    :root {
+      --gp-primary: #dc3545;
+      --gp-success: #198754;
+      --gp-bg: #f8f9fa;
+    }
+    body {
+      background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+      font-family: "Segoe UI", sans-serif;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    .card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    .card-title {
+      font-weight: 600;
+      color: var(--gp-primary);
+    }
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--gp-primary);
+      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    .btn-primary {
+      background-color: var(--gp-primary);
+      border: none;
+      font-weight: 500;
+    }
+    .btn-success {
+      background-color: var(--gp-success);
+      border: none;
+    }
+    .btn i {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="card-title m-0">Produtos para Resgate</h2>
+      <div>
+        <button class="btn btn-outline-secondary me-2" onclick="window.location.href='menu.html'"><i class="bi bi-house-door"></i> Menu</button>
+        <button class="btn btn-primary" onclick="window.location.href='cadastrarproduto.html'"><i class="bi bi-plus-circle"></i> Novo Produto</button>
       </div>
     </div>
 
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-      import {
-        getFirestore,
-        collection,
-        doc,
-        getDoc,
-        getDocs,
-        addDoc,
-        updateDoc,
-        deleteDoc,
-        onSnapshot,
-        serverTimestamp,
-      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    <div class="card p-4 mb-4">
+      <div class="mb-3">
+        <input type="text" class="form-control" id="pesquisa" placeholder="Pesquisar produto por nome ou código de barras...">
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Produto</th>
+              <th>Imagem</th>
+              <th>Pontos</th>
+              <th>Cód. Barras</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="produtosTabela"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyBoEFGxMUgb-MUbWpNzRbUEpEQDXes4wcc",
-        authDomain: "programa-de-pontos-nh.firebaseapp.com",
-        projectId: "programa-de-pontos-nh",
-        storageBucket: "programa-de-pontos-nh.firebasestorage.app",
-        messagingSenderId: "136030554657",
-        appId: "1:136030554657:web:9bc5561eddc658ab087160",
-      };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      deleteDoc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const form = document.getElementById("produtoForm");
-      const tabela = document.getElementById("produtosTabela");
-      const produtoId = document.getElementById("produtoId");
-      const formTitle = document.getElementById("formTitle");
+    const firebaseConfig = {
+      apiKey: "AIzaSyBoEFGxMUgb-MUbWpNzRbUEpEQDXes4wcc",
+      authDomain: "programa-de-pontos-nh.firebaseapp.com",
+      projectId: "programa-de-pontos-nh",
+      storageBucket: "programa-de-pontos-nh.firebasestorage.app",
+      messagingSenderId: "136030554657",
+      appId: "1:136030554657:web:9bc5561eddc658ab087160",
+    };
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const nome = document.getElementById("nomeProduto").value.trim();
-        const imagem = document.getElementById("imagem").value.trim();
-        const pontos = parseInt(document.getElementById("pontos").value);
-        const codBarras = document.getElementById("codBarras").value.trim();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const tabela = document.getElementById("produtosTabela");
+    const pesquisa = document.getElementById("pesquisa");
+    let todosProdutos = [];
 
-        const produto = { nome, imagem, pontos, codBarras, criado_em: serverTimestamp() };
-
-        try {
-          if (produtoId.value) {
-            await updateDoc(doc(db, "produtos_resgate", produtoId.value), produto);
-            alert("Produto atualizado!");
-          } else {
-            await addDoc(collection(db, "produtos_resgate"), produto);
-            alert("Produto salvo!");
-          }
-          form.reset();
-          produtoId.value = "";
-          formTitle.innerText = "Cadastro de Produto";
-        } catch (err) {
-          console.error(err);
-          alert("Erro ao salvar produto.");
-        }
+    function renderTabela(produtos) {
+      tabela.innerHTML = "";
+      produtos.forEach((p) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.nome}</td>
+          <td><img src="${p.imagem}" width="50" /></td>
+          <td>${p.pontos}</td>
+          <td>${p.codBarras}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary me-2" onclick="editarProduto('${p.id}')"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-danger" onclick="excluirProduto('${p.id}')"><i class="bi bi-trash"></i></button>
+          </td>`;
+        tabela.appendChild(tr);
       });
+    }
 
-      function carregarProdutos() {
-        onSnapshot(collection(db, "produtos_resgate"), (snapshot) => {
-          tabela.innerHTML = "";
-          snapshot.forEach((docSnap) => {
-            const p = docSnap.data();
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-              <td>${p.nome}</td>
-              <td><img src="${p.imagem}" width="50" /></td>
-              <td>${p.pontos}</td>
-              <td>${p.codBarras}</td>
-              <td>
-                <button class="btn btn-sm btn-outline-primary me-2" onclick="editarProduto('${docSnap.id}')">Editar</button>
-                <button class="btn btn-sm btn-danger" onclick="excluirProduto('${docSnap.id}')">Excluir</button>
-              </td>`;
-            tabela.appendChild(tr);
-          });
-        });
+    onSnapshot(collection(db, "produtos_resgate"), (snapshot) => {
+      todosProdutos = [];
+      snapshot.forEach((docSnap) => {
+        const p = docSnap.data();
+        todosProdutos.push({ ...p, id: docSnap.id });
+      });
+      renderTabela(todosProdutos);
+    });
+
+    window.editarProduto = async (id) => {
+      sessionStorage.setItem("produtoId", id);
+      window.location.href = "cadastrarproduto.html";
+    };
+
+    window.excluirProduto = async (id) => {
+      if (confirm("Deseja excluir este produto?")) {
+        await deleteDoc(doc(db, "produtos_resgate", id));
       }
+    };
 
-      carregarProdutos();
-
-      window.editarProduto = async (id) => {
-        const ref = doc(db, "produtos_resgate", id);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          const p = snap.data();
-          produtoId.value = id;
-          document.getElementById("nomeProduto").value = p.nome;
-          document.getElementById("imagem").value = p.imagem;
-          document.getElementById("pontos").value = p.pontos;
-          document.getElementById("codBarras").value = p.codBarras;
-          formTitle.innerText = "Editar Produto";
-        }
-      };
-
-      window.excluirProduto = async (id) => {
-        if (confirm("Deseja excluir este produto?")) {
-          await deleteDoc(doc(db, "produtos_resgate", id));
-        }
-      };
-    </script>
-  </body>
+    pesquisa.addEventListener("input", () => {
+      const termo = pesquisa.value.toLowerCase();
+      const filtrados = todosProdutos.filter(p =>
+        p.nome.toLowerCase().includes(termo) ||
+        p.codBarras.toLowerCase().includes(termo)
+      );
+      renderTabela(filtrados);
+    });
+  </script>
+</body>
 </html>
