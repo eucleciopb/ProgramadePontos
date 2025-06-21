@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Novo Operador - Programa de Pontos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    :root {
+      --gp-primary: #198754;
+      --gp-danger: #dc3545;
+      --gp-bg: #f8f9fa;
+    }
+    body {
+      background: linear-gradient(135deg, #eafcf1 0%, #f8f9fa 100%);
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    .card {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      background: #fff;
+    }
+    .card-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--gp-primary);
+    }
+    .btn-primary {
+      background-color: var(--gp-primary);
+      border: none;
+    }
+    .btn-danger {
+      background-color: var(--gp-danger);
+      border: none;
+    }
+    .btn i {
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 class="card-title text-center mb-4">Novo Operador</h2>
+    <form id="operadorForm" novalidate>
+      <div class="mb-3">
+        <label for="nome" class="form-label">Nome Completo</label>
+        <input type="text" class="form-control" id="nome" required />
+      </div>
+      <div class="mb-3">
+        <label for="login" class="form-label">Login</label>
+        <input type="text" class="form-control" id="login" required />
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="senha" class="form-label">Senha</label>
+          <input type="password" class="form-control" id="senha" minlength="8" required />
+        </div>
+        <div class="col-md-6">
+          <label for="confirmSenha" class="form-label">Confirmar Senha</label>
+          <input type="password" class="form-control" id="confirmSenha" minlength="8" required />
+        </div>
+      </div>
+      <div class="mt-3 mb-3">
+        <label for="nivel" class="form-label">Nível de Acesso</label>
+        <select id="nivel" class="form-select" required>
+          <option value="">Selecione...</option>
+          <option value="operador">Operador</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-check mb-4">
+        <input class="form-check-input" type="checkbox" id="ativo" checked />
+        <label class="form-check-label" for="ativo">Ativo</label>
+      </div>
+      <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" onclick="voltarLista()">
+          <i class="bi bi-arrow-left"></i>Voltar para Lista
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-save2"></i>Salvar Operador
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBoEFGxMUgb-MUbWpNzRbUEpEQDXes4wcc",
+      authDomain: "programa-de-pontos-nh.firebaseapp.com",
+      projectId: "programa-de-pontos-nh",
+      storageBucket: "programa-de-pontos-nh.firebasestorage.app",
+      messagingSenderId: "136030554657",
+      appId: "1:136030554657:web:9bc5561eddc658ab087160",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const form = document.getElementById("operadorForm");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById("nome").value.trim();
+      const login = document.getElementById("login").value.trim();
+      const senha = document.getElementById("senha").value;
+      const confirmSenha = document.getElementById("confirmSenha").value;
+      const nivel = document.getElementById("nivel").value;
+      const ativo = document.getElementById("ativo").checked;
+
+      if (senha !== confirmSenha) {
+        alert("As senhas não coincidem.");
+        return;
+      }
+
+      // Verificar duplicidade de login
+      const q = query(collection(db, "usuarios_caixa"), where("login", "==", login));
+      const res = await getDocs(q);
+      if (!res.empty) {
+        alert("Já existe um operador com este login.");
+        return;
+      }
+
+      const novoOperador = { nome, login, senha, nivel, ativo, criado_em: serverTimestamp() };
+
+      try {
+        await addDoc(collection(db, "usuarios_caixa"), novoOperador);
+        alert("Operador cadastrado com sucesso!");
+        window.location.href = "cadastrooperadores.html";
+      } catch (error) {
+        console.error(error);
+        alert("Erro ao cadastrar operador.");
+      }
+    });
+
+    function voltarLista() {
+      window.location.href = "cadastrooperadores.html";
+    }
+  </script>
+</body>
+</html>
