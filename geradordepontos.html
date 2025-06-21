@@ -162,11 +162,11 @@
       query,
       where,
       getDocs,
+      addDoc,
       updateDoc,
       doc,
       increment,
-      addDoc,
-      serverTimestamp
+      serverTimestamp,
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // CONFIG FIREBASE
@@ -214,6 +214,15 @@
       document.getElementById("pontosGerados").value = pontos;
     });
 
+    // Função para formatar data em dd/MM/yyyy
+    function formatarData(data) {
+      const d = new Date();
+      const dia = String(d.getDate()).padStart(2, '0');
+      const mes = String(d.getMonth() + 1).padStart(2, '0');
+      const ano = d.getFullYear();
+      return `${dia}/${mes}/${ano}`;
+    }
+
     // Envio do formulário
     document.getElementById("pontosForm").addEventListener("submit", async function(e) {
       e.preventDefault();
@@ -224,7 +233,6 @@
       const valorNota = parseFloat(document.getElementById("valorNota").value.replace(',','.')) || 0;
       const pontos = parseFloat(document.getElementById("pontosGerados").value.replace(',','.')) || 0;
 
-      // Validação número da nota fiscal (apenas inteiros positivos)
       if (!notaFiscal || isNaN(notaFiscal) || parseInt(notaFiscal) != Number(notaFiscal) || parseInt(notaFiscal) <= 0) {
         document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Digite o número da nota fiscal (somente números inteiros positivos).</span>";
         return;
@@ -247,28 +255,26 @@
         return;
       }
 
-      const docRef = doc(db, "clientes", snap.docs[0].id);
-
-      // Verifica se já existe essa nota fiscal para este telefone
-      const qNota = query(collection(db, "notas_pontos"), where("telefone", "==", telefone), where("nota", "==", notaFiscal));
-      const notasExistentes = await getDocs(qNota);
-      if (!notasExistentes.empty) {
-        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Esta nota fiscal já foi registrada para este cliente!</span>";
+      // Checar se a nota fiscal já foi lançada para este cliente
+      const qNota = query(
+        collection(db, "notas_pontos"),
+        where("telefone", "==", telefone),
+        where("nota", "==", notaFiscal)
+      );
+      const snapNota = await getDocs(qNota);
+      if (!snapNota.empty) {
+        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Esta nota fiscal já foi lançada para este cliente!</span>";
         return;
       }
+
+      const docRef = doc(db, "clientes", snap.docs[0].id);
 
       // Atualiza pontos gerados
       await updateDoc(docRef, {
         pontos_gerados: increment(pontos)
       });
 
-      // Gera campos de data/hora
-      const agora = new Date();
-      function pad(n) { return n.toString().padStart(2, '0'); }
-      const dataFormatada = `${pad(agora.getDate())}/${pad(agora.getMonth() + 1)}/${agora.getFullYear()}`;
-      const horaFormatada = `${pad(agora.getHours())}:${pad(agora.getMinutes())}`;
-
-      // Salva lançamento
+      // Grava nota fiscal em "notas_pontos" (data como string)
       await addDoc(collection(db, "notas_pontos"), {
         telefone,
         cliente: nomeCliente,
@@ -276,9 +282,8 @@
         total_venda: valorNota,
         pontos,
         operador: operadorNome,
-        data: dataFormatada,
-        hora: horaFormatada,
-        timestamp: serverTimestamp()
+        data: formatarData(new Date()), // Data string dd/MM/yyyy
+        // timestamp: serverTimestamp() // Se quiser timestamp, deixe essa linha comentada!
       });
 
       // Busca novo saldo
@@ -289,7 +294,7 @@
       sessionStorage.setItem("parabens_nome", nomeCliente);
       sessionStorage.setItem("parabens_ganhos", pontos.toLocaleString("pt-BR", {minimumFractionDigits: 2}));
       sessionStorage.setItem("parabens_saldo", saldo.toLocaleString("pt-BR", {minimumFractionDigits: 2}));
-      sessionStorage.setItem("parabens_nota", notaFiscal);
+      sessionStorage.setItem("parabens_nota", notaFiscal); // SALVA O NÚMERO DA NOTA para exibir depois
       window.location.href = "parabens-pontos.html";
     });
 
