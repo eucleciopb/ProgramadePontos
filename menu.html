@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+      <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -54,6 +54,17 @@
     table {
       font-size: 0.85rem;
     }
+    .btn-excluir {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: .6rem;
+      padding: 0.2rem 1.1rem;
+      font-size: 0.93rem;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .btn-excluir:hover { background-color: #a22; }
   </style>
 </head>
 <body>
@@ -63,13 +74,16 @@
       <div id="user-info" class="user-info">Carregando usuário...</div>
 
       <a href="cadastroclientes.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-users"></i> Consulta de Clientes
+        <i class="fa-solid fa-users"></i> Lista de Clientes
+      </a>
+      <a href="cadastrarcliente.html" class="btn btn-outline-dark btn-menu">
+        <i class="fa-solid fa-user-plus"></i> Novo Cliente
       </a>
       <a href="cadastrooperadores.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-users-gear"></i> Consulta de Operadores
+        <i class="fa-solid fa-users-gear"></i> Operadores
       </a>
-      <a href="cadastroprodutos.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-box-open"></i> Consulta de Produtos
+      <a href="CadastrodeProdutos.html" class="btn btn-outline-dark btn-menu">
+        <i class="fa-solid fa-box-open"></i> Cadastro de Produtos
       </a>
       <a href="geradordepontos.html" class="btn btn-outline-success btn-menu">
         <i class="fa-solid fa-bolt"></i> Gerador de Pontos
@@ -142,8 +156,7 @@
       doc,
       deleteDoc,
       updateDoc,
-      increment,
-      getDoc
+      increment
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -160,53 +173,40 @@
 
     const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
-    const loginAnterior = localStorage.getItem("login_anterior") || "Não registrado";
     document.getElementById("user-info").innerHTML = `
       <b>Usuário:</b> ${nome}<br>
-      <b>Nível:</b> ${nivel}<br>
-      <b>Último login:</b> ${loginAnterior}
+      <b>Nível:</b> ${nivel}
     `;
 
-    function formatarData(data) {
-      if (typeof data === "string" && data.match(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/)) return data;
-      if (data && data.seconds) {
-        const d = new Date(data.seconds * 1000);
-        const dia = String(d.getDate()).padStart(2, "0");
-        const mes = String(d.getMonth() + 1).padStart(2, "0");
-        const ano = d.getFullYear();
-        const hora = String(d.getHours()).padStart(2, "0");
-        const min = String(d.getMinutes()).padStart(2, "0");
-        return `${dia}/${mes}/${ano} ${hora}:${min}`;
-      }
-      return "";
-    }
-
+    // --- Tabela de Pontos ---
     async function carregarNotas() {
       const ref = collection(db, "notas_pontos");
-      const q = query(ref, orderBy("data", "desc"), limit(20));
+      const q = query(ref, orderBy("data_ordem", "desc"), limit(20));
       const snapshot = await getDocs(q);
       const tabela = document.getElementById("tabelaNotas");
       tabela.innerHTML = "";
-      snapshot.forEach(docItem => {
-        const n = docItem.data();
+      snapshot.forEach(docSnap => {
+        const n = docSnap.data();
+        const id = docSnap.id;
+        const clienteId = n.clienteId || "";
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${n.cliente}</td>
-          <td>${n.nota}</td>
-          <td>${formatarData(n.data)}</td>
-          <td>R$ ${n.total_venda?.toFixed(2) || 0}</td>
-          <td>${n.pontos}</td>
-          <td>${n.operador || "-"}</td>
+          <td>${n.cliente || ""}</td>
+          <td>${n.nota || ""}</td>
+          <td>${n.data || ""}</td>
+          <td>R$ ${(n.total_venda || 0).toLocaleString("pt-BR", {minimumFractionDigits:2})}</td>
+          <td>${n.pontos || ""}</td>
+          <td>${n.operador || ""}</td>
           <td>
-            <button class="btn btn-sm btn-danger" onclick="excluirNota('${docItem.id}', '${n.clienteId}', ${n.pontos})">Excluir</button>
+            <button class="btn-excluir" onclick="excluirNota('${id}', '${clienteId}', '${n.pontos}')">Excluir</button>
           </td>
         `;
         tabela.appendChild(tr);
       });
     }
 
-    // Excluir nota e descontar pontos do cliente
-    window.excluirNota = async (notaId, clienteId, pontos) => {
+    // Função de exclusão (global)
+    async function excluirNota(notaId, clienteId, pontos) {
       if (!confirm("Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.")) return;
       await deleteDoc(doc(db, "notas_pontos", notaId));
       if (clienteId && pontos) {
@@ -215,23 +215,26 @@
         });
       }
       carregarNotas();
-    };
+    }
+    // Torna a função global (importante!)
+    window.excluirNota = excluirNota;
 
+    // --- Tabela de Trocas ---
     async function carregarTrocas() {
-      const ref = collection(db, "resgates");
-      const q = query(ref, orderBy("dataResgate", "desc"), limit(20));
+      const ref = collection(db, "trocas_produtos");
+      const q = query(ref, orderBy("data_ordem", "desc"), limit(20));
       const snapshot = await getDocs(q);
       const tabela = document.getElementById("tabelaTrocas");
       tabela.innerHTML = "";
-      snapshot.forEach(docItem => {
-        const t = docItem.data();
+      snapshot.forEach(docSnap => {
+        const t = docSnap.data();
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${t.nomeCliente}</td>
-          <td>${t.nomeProduto}</td>
-          <td>${formatarData(t.dataResgate)}</td>
-          <td>${t.pontosProduto || ""}</td>
-          <td>${t.operador || "-"}</td>
+          <td>${t.cliente || ""}</td>
+          <td>${t.produto || ""}</td>
+          <td>${t.data || ""}</td>
+          <td>${t.pontos || ""}</td>
+          <td>${t.operador || ""}</td>
         `;
         tabela.appendChild(tr);
       });
