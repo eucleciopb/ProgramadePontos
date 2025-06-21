@@ -116,19 +116,12 @@
       box-shadow: none !important;
       height: 2.2rem;
     }
-    .data-info {
-      color: #198754;
-      font-weight: 600;
-      margin-bottom: 1.2rem;
-      font-size: 1.03rem;
-    }
   </style>
 </head>
 <body>
   <div class="points-card">
     <div id="user-info">Carregando usuário...</div>
     <h2>Gerador de Pontos</h2>
-    <div class="data-info" id="dataAtual"></div>
     <form id="pontosForm" autocomplete="off">
       <!-- TELEFONE ESTILIZADO -->
       <div class="input-group custom-input-group">
@@ -169,10 +162,10 @@
       query,
       where,
       getDocs,
-      addDoc,
       updateDoc,
       doc,
       increment,
+      addDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -190,18 +183,9 @@
 
     // Exibe usuário logado
     const operadorNome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
-    const operadorNivel = sessionStorage.getItem("nivel_atual") || "-";
+    const nivel = sessionStorage.getItem("nivel_atual") || "-";
     document.getElementById("user-info").innerHTML =
-      `<b>Operador:</b> ${operadorNome}<br><b>Nível:</b> ${operadorNivel}`;
-
-    // Mostra data atual (DD/MM/YYYY HH:mm)
-    function formataDataAtual() {
-      const agora = new Date();
-      const data = agora.toLocaleDateString('pt-BR');
-      const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      return `${data} às ${hora}`;
-    }
-    document.getElementById("dataAtual").innerText = `Data: ${formataDataAtual()}`;
+      `<b>Usuário:</b> ${operadorNome}<br><b>Nível:</b> ${nivel}`;
 
     // Limpar mensagem ao trocar telefone
     document.getElementById("telefone").addEventListener("input", () => {
@@ -251,25 +235,13 @@
         return;
       }
 
-      // Impede duplicidade de nota fiscal para este cliente
-      const qDup = query(
-        collection(db, "notas_pontos"),
-        where("telefone", "==", telefone),
-        where("nota", "==", notaFiscal)
-      );
-      const snapDup = await getDocs(qDup);
-      if (!snapDup.empty) {
-        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Esta nota fiscal já foi cadastrada para este cliente!</span>";
-        return;
-      }
-
       // Pede a senha do cliente via prompt
       const senhaCliente = prompt("Digite a senha do cliente para confirmar:");
       if (!senhaCliente) return;
 
       // Confere senha no banco
-      const q = query(collection(db, "clientes"), where("telefone", "==", telefone), where("senha", "==", senhaCliente));
-      const snap = await getDocs(q);
+      const qCliente = query(collection(db, "clientes"), where("telefone", "==", telefone), where("senha", "==", senhaCliente));
+      const snap = await getDocs(qCliente);
       if (snap.empty) {
         document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Senha incorreta para este cliente!</span>";
         return;
@@ -277,13 +249,26 @@
 
       const docRef = doc(db, "clientes", snap.docs[0].id);
 
+      // Verifica se já existe essa nota fiscal para este telefone
+      const qNota = query(collection(db, "notas_pontos"), where("telefone", "==", telefone), where("nota", "==", notaFiscal));
+      const notasExistentes = await getDocs(qNota);
+      if (!notasExistentes.empty) {
+        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Esta nota fiscal já foi registrada para este cliente!</span>";
+        return;
+      }
+
       // Atualiza pontos gerados
       await updateDoc(docRef, {
         pontos_gerados: increment(pontos)
       });
 
-      // Registra nota em "notas_pontos"
+      // Gera campos de data/hora
       const agora = new Date();
+      function pad(n) { return n.toString().padStart(2, '0'); }
+      const dataFormatada = `${pad(agora.getDate())}/${pad(agora.getMonth() + 1)}/${agora.getFullYear()}`;
+      const horaFormatada = `${pad(agora.getHours())}:${pad(agora.getMinutes())}`;
+
+      // Salva lançamento
       await addDoc(collection(db, "notas_pontos"), {
         telefone,
         cliente: nomeCliente,
@@ -291,7 +276,8 @@
         total_venda: valorNota,
         pontos,
         operador: operadorNome,
-        data: agora.toLocaleString('pt-BR'),
+        data: dataFormatada,
+        hora: horaFormatada,
         timestamp: serverTimestamp()
       });
 
