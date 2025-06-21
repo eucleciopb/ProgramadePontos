@@ -114,23 +114,25 @@
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
 
     const agora = new Date();
-    const dataLocal = agora.toLocaleDateString('pt-BR'); // ex: 20/06/2025
-    const horaLocal = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); // ex: 15:32
-    const dataHoraLocal = `${dataLocal} às ${horaLocal}`;
+    const dataHoje = agora.toLocaleDateString('pt-BR'); // ex: 21/06/2025
+    const horaHoje = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-    const ultimaDataRegistrada = localStorage.getItem("data_atual");
+    const loginAtual = `${dataHoje} às ${horaHoje}`;
+    const ultimaDataSalva = localStorage.getItem("data_hoje");
 
-    // Se ainda não registrou login hoje, atualiza e salva o anterior
-    if (ultimaDataRegistrada !== dataLocal) {
-      const anterior = localStorage.getItem("data_hora_atual");
-      if (anterior) {
-        localStorage.setItem("data_login_anterior", anterior);
+    if (ultimaDataSalva !== dataHoje) {
+      // Salva como anterior apenas se não for do mesmo dia
+      const loginAnteriorSalvo = localStorage.getItem("login_atual");
+      if (loginAnteriorSalvo) {
+        localStorage.setItem("login_anterior", loginAnteriorSalvo);
       }
-      localStorage.setItem("data_atual", dataLocal);
-      localStorage.setItem("data_hora_atual", dataHoraLocal);
+
+      // Salva novo login
+      localStorage.setItem("login_atual", loginAtual);
+      localStorage.setItem("data_hoje", dataHoje);
     }
 
-    const loginAnterior = localStorage.getItem("data_login_anterior") || "Não registrado";
+    const loginAnterior = localStorage.getItem("login_anterior") || "Não registrado";
 
     document.getElementById("user-info").innerHTML = `
       <b>Usuário:</b> ${nome}<br>
@@ -140,7 +142,7 @@
 
     window.logout = function () {
       sessionStorage.clear();
-      window.location.href = "index.html"; // redireciona corretamente
+      window.location.href = "index.html"; // Corrigido: redireciona para a tela de login correta
     }
   </script>
 </body>
