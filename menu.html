@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Menu - Programa de Pontos</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
   <style>
     body {
       background: linear-gradient(135deg, #f8fafc, #e2e8f0);
@@ -52,7 +52,12 @@
     }
     .logout:hover { opacity: 0.7; }
     table {
-      font-size: 0.85rem;
+      font-size: 0.89rem;
+    }
+    @media (max-width: 600px) {
+      .menu-card { padding: 1.1rem; border-radius: 1rem; }
+      table { font-size: 0.77rem; }
+      .btn-menu { font-size: 0.97rem; }
     }
   </style>
 </head>
@@ -62,14 +67,17 @@
       <h1 class="text-center">📲 Programa de Pontos</h1>
       <div id="user-info" class="user-info">Carregando usuário...</div>
 
-      <a href="cadastrocliente.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-user-plus"></i> Cadastro de Clientes
+      <a href="cadastroclientes.html" class="btn btn-outline-dark btn-menu">
+        <i class="fa-solid fa-users"></i> Clientes Cadastrados
+      </a>
+      <a href="cadastrarcliente.html" class="btn btn-outline-dark btn-menu">
+        <i class="fa-solid fa-user-plus"></i> Novo Cliente
       </a>
       <a href="cadastrooperadores.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-users-gear"></i> Cadastro de Operadores
+        <i class="fa-solid fa-users-gear"></i> Usuários/Operadores
       </a>
-      <a href="CadastrodeProdutos.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-box-open"></i> Cadastro de Produtos
+      <a href="produtosresgate.html" class="btn btn-outline-dark btn-menu">
+        <i class="fa-solid fa-box-open"></i> Produtos para Resgate
       </a>
       <a href="geradordepontos.html" class="btn btn-outline-success btn-menu">
         <i class="fa-solid fa-bolt"></i> Gerador de Pontos
@@ -83,11 +91,10 @@
       </div>
     </div>
 
-    <!-- Últimas notas com pontos -->
+    <!-- Últimos pontos gerados -->
     <div class="menu-card">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="section-title">📄 Últimas 20 Notas com Pontos</div>
-        <button class="btn btn-sm btn-outline-secondary" onclick="exportarExcel('notas')">Exportar Excel</button>
+        <div class="section-title">📄 Últimos 20 Pontos Gerados</div>
       </div>
       <div class="table-responsive">
         <table class="table table-striped table-bordered">
@@ -97,7 +104,8 @@
               <th>Nota Fiscal</th>
               <th>Data</th>
               <th>Total Venda</th>
-              <th>Pontos Gerados</th>
+              <th>Pontos</th>
+              <th>Operador</th>
             </tr>
           </thead>
           <tbody id="tabelaNotas"></tbody>
@@ -105,11 +113,10 @@
       </div>
     </div>
 
-    <!-- Últimas trocas -->
+    <!-- Últimos resgates -->
     <div class="menu-card">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="section-title">🎁 Últimas 20 Trocas de Produtos</div>
-        <button class="btn btn-sm btn-outline-secondary" onclick="exportarExcel('trocas')">Exportar Excel</button>
+        <div class="section-title">🎁 Últimos 20 Resgates</div>
       </div>
       <div class="table-responsive">
         <table class="table table-striped table-bordered">
@@ -118,10 +125,11 @@
               <th>Cliente</th>
               <th>Produto</th>
               <th>Data</th>
-              <th>Pontos Trocados</th>
+              <th>Pontos</th>
+              <th>Operador</th>
             </tr>
           </thead>
-          <tbody id="tabelaTrocas"></tbody>
+          <tbody id="tabelaResgates"></tbody>
         </table>
       </div>
     </div>
@@ -150,14 +158,23 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Usuário logado
     const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
-    const loginAnterior = localStorage.getItem("login_anterior") || "Não registrado";
     document.getElementById("user-info").innerHTML = `
       <b>Usuário:</b> ${nome}<br>
-      <b>Nível:</b> ${nivel}<br>
-      <b>Último login:</b> ${loginAnterior}
+      <b>Nível:</b> ${nivel}
     `;
+
+    function formatarData(timestamp) {
+      if (!timestamp) return "";
+      try {
+        const dataObj = typeof timestamp === "string" ? new Date(timestamp) : timestamp.toDate ? timestamp.toDate() : timestamp;
+        return dataObj.toLocaleString("pt-BR");
+      } catch {
+        return timestamp;
+      }
+    }
 
     async function carregarNotas() {
       const ref = collection(db, "notas_pontos");
@@ -171,28 +188,30 @@
         tr.innerHTML = `
           <td>${n.cliente}</td>
           <td>${n.nota}</td>
-          <td>${n.data}</td>
+          <td>${formatarData(n.data)}</td>
           <td>R$ ${n.total_venda?.toFixed(2) || 0}</td>
           <td>${n.pontos}</td>
+          <td>${n.operadorNome || "-"}</td>
         `;
         tabela.appendChild(tr);
       });
     }
 
-    async function carregarTrocas() {
-      const ref = collection(db, "trocas_produtos");
-      const q = query(ref, orderBy("data", "desc"), limit(20));
+    async function carregarResgates() {
+      const ref = collection(db, "resgates");
+      const q = query(ref, orderBy("dataResgate", "desc"), limit(20));
       const snapshot = await getDocs(q);
-      const tabela = document.getElementById("tabelaTrocas");
+      const tabela = document.getElementById("tabelaResgates");
       tabela.innerHTML = "";
       snapshot.forEach(doc => {
-        const t = doc.data();
+        const r = doc.data();
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${t.cliente}</td>
-          <td>${t.produto}</td>
-          <td>${t.data}</td>
-          <td>${t.pontos}</td>
+          <td>${r.nomeCliente}</td>
+          <td>${r.nomeProduto}</td>
+          <td>${formatarData(r.dataResgate)}</td>
+          <td>${r.pontos || ""}</td>
+          <td>${r.operadorNome || "-"}</td>
         `;
         tabela.appendChild(tr);
       });
@@ -203,12 +222,8 @@
       window.location.href = "index.html";
     }
 
-    window.exportarExcel = function (tipo) {
-      alert(`Função de exportação para '${tipo}' será implementada.`);
-    }
-
     carregarNotas();
-    carregarTrocas();
+    carregarResgates();
   </script>
 </body>
 </html>

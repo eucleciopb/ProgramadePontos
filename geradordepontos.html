@@ -24,98 +24,19 @@
       transition: box-shadow .25s;
       text-align: center;
     }
-    .points-card:hover {
-      box-shadow: 0 12px 40px rgba(44,62,80,.16), 0 2px 12px rgba(44,62,80,.10);
-    }
     h2 {
       font-size: 1.7rem;
       font-weight: bold;
       margin-bottom: 1.2rem;
       color: #198754;
     }
-    .form-label {
-      font-weight: 600;
-      color: #444;
-    }
-    .form-control {
-      border-radius: 0.75rem;
-      border: 1.5px solid #e6e6e6;
-      font-size: 1rem;
-      padding: 0.7rem 1rem;
-      transition: border-color .18s;
-      box-shadow: none;
-    }
-    .form-control:focus {
-      border-color: #198754;
-      box-shadow: 0 0 0 1.5px #19875433;
-      outline: none;
-      background: #f8fffa;
-      transition: background 0.2s;
-    }
-    .form-readonly {
-      background: #f6f6f6;
-      border: none;
-      font-weight: bold;
-      color: #198754;
-    }
-    .btn-success {
-      border-radius: 0.75rem;
-      font-weight: bold;
-      font-size: 1.09rem;
-      padding: 0.6rem 1rem;
-      letter-spacing: .01em;
-      margin-top: 0.8rem;
-      box-shadow: 0 2px 8px rgba(25,135,84,0.09);
-      transition: transform .17s;
-    }
-    .btn-success:hover, .btn-success:focus {
-      transform: scale(1.03);
-      background: #157347 !important;
-    }
-    .logout {
-      margin-top: 1.5rem;
-      font-size: .97rem;
-      color: #dc3545;
-      cursor: pointer;
-    }
+    .form-label { font-weight: 600; color: #444; }
+    .form-control { border-radius: 0.75rem; border: 1.5px solid #e6e6e6; font-size: 1rem; padding: 0.7rem 1rem; }
+    .form-control:focus { border-color: #198754; box-shadow: 0 0 0 1.5px #19875433; outline: none; background: #f8fffa; }
+    .form-readonly { background: #f6f6f6; border: none; font-weight: bold; color: #198754; }
+    .btn-success { border-radius: 0.75rem; font-weight: bold; font-size: 1.09rem; padding: 0.6rem 1rem; margin-top: 0.8rem; }
+    .logout { margin-top: 1.5rem; font-size: .97rem; color: #dc3545; cursor: pointer; }
     .logout:hover { text-decoration: underline; }
-    #user-info {
-      margin-bottom: 1.3rem;
-      font-size: 0.97rem;
-      color: #343a40;
-    }
-    .custom-input-group {
-      background: #eaf2fe;
-      border-radius: 1.1rem;
-      border: 2px solid #c8e6c9;
-      padding: 0.25rem 0.5rem;
-      margin-bottom: 1.15rem;
-      align-items: flex-start;
-    }
-    .label-telefone {
-      background: #fff !important;
-      border: none !important;
-      border-radius: 0.7rem !important;
-      margin-right: 5px;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      font-size: 1.09rem;
-      box-shadow: none !important;
-      display: flex;
-      align-items: center;
-      font-weight: 600;
-    }
-    .telefone-highlight {
-      background: #eaf2fe !important;
-      border: none !important;
-      font-size: 1.25rem !important;
-      color: #1a1a1a;
-      font-weight: 500;
-      border-radius: 0.9rem !important;
-      margin-left: 0.5rem;
-      box-shadow: none !important;
-      height: 2.2rem;
-    }
   </style>
 </head>
 <body>
@@ -123,22 +44,17 @@
     <div id="user-info">Carregando usuário...</div>
     <h2>Gerador de Pontos</h2>
     <form id="pontosForm" autocomplete="off">
-      <!-- TELEFONE ESTILIZADO -->
-      <div class="input-group custom-input-group">
-        <span class="input-group-text label-telefone">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#27ae60" viewBox="0 0 24 24" style="margin-right:5px;"><path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1-.24c1.12.37 2.33.57 3.59.57a1 1 0 0 1 1 1v3.25a1 1 0 0 1-1 1A17 17 0 0 1 3 5a1 1 0 0 1 1-1h3.25a1 1 0 0 1 1 1c0 1.26.2 2.47.57 3.59a1 1 0 0 1-.24 1l-2.2 2.2z"/></svg>
-          <span style="color:#27ae60;">Telefone</span>
-        </span>
-        <input type="tel" class="form-control telefone-highlight" id="telefone" required placeholder="(xx) xxxxx-xxxx" maxlength="15" />
+      <div class="mb-3 text-start">
+        <label class="form-label">Telefone</label>
+        <input type="tel" class="form-control" id="telefone" required maxlength="15" placeholder="(xx) xxxxx-xxxx" />
       </div>
-
       <div class="mb-3 text-start">
         <label class="form-label">Nome do Cliente</label>
         <input type="text" class="form-control form-readonly" id="nomeCliente" readonly />
       </div>
       <div class="mb-3 text-start">
         <label class="form-label">Nº da Nota Fiscal</label>
-        <input type="number" class="form-control" id="notaFiscal" min="1" step="1" required placeholder="Somente números inteiros" pattern="\d*" />
+        <input type="number" class="form-control" id="notaFiscal" min="1" step="1" required placeholder="Somente números inteiros" />
       </div>
       <div class="mb-3 text-start">
         <label class="form-label">Valor da Nota Fiscal (R$)</label>
@@ -153,18 +69,10 @@
     <div id="msg-pontos" style="margin-top: 1.3rem;"></div>
     <div class="logout" onclick="logout()">Sair</div>
   </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      query,
-      where,
-      getDocs,
-      updateDoc,
-      doc,
-      increment,
+      getFirestore, collection, query, where, getDocs, updateDoc, doc, increment, addDoc
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // CONFIG FIREBASE
@@ -179,19 +87,13 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Exibe usuário logado
-    const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
+    // Usuário logado
+    const operadorNome = sessionStorage.getItem("nome_atual") || "";
+    const operadorId = sessionStorage.getItem("login_atual") || "";
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
     document.getElementById("user-info").innerHTML =
-      `<b>Usuário:</b> ${nome}<br><b>Nível:</b> ${nivel}`;
+      `<b>Usuário:</b> ${operadorNome}<br><b>Nível:</b> ${nivel}`;
 
-    // Limpar mensagem ao trocar telefone
-    document.getElementById("telefone").addEventListener("input", () => {
-      document.getElementById("msg-pontos").innerHTML = '';
-      document.getElementById("nomeCliente").value = '';
-    });
-
-    // Buscar cliente pelo telefone ao sair do campo
     document.getElementById("telefone").addEventListener("blur", async (e) => {
       const telefone = e.target.value.trim();
       if (!telefone) return;
@@ -205,14 +107,12 @@
       }
     });
 
-    // Calculo automático dos pontos
     document.getElementById("valorNota").addEventListener("input", (e) => {
       const val = parseFloat(e.target.value.replace(',','.')) || 0;
       const pontos = (val * 0.05).toFixed(2).replace('.', ',');
       document.getElementById("pontosGerados").value = pontos;
     });
 
-    // Envio do formulário
     document.getElementById("pontosForm").addEventListener("submit", async function(e) {
       e.preventDefault();
 
@@ -222,12 +122,10 @@
       const valorNota = parseFloat(document.getElementById("valorNota").value.replace(',','.')) || 0;
       const pontos = parseFloat(document.getElementById("pontosGerados").value.replace(',','.')) || 0;
 
-      // Validação número da nota fiscal (apenas inteiros positivos)
-      if (!notaFiscal || isNaN(notaFiscal) || parseInt(notaFiscal) != Number(notaFiscal) || parseInt(notaFiscal) <= 0) {
-        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Digite o número da nota fiscal (somente números inteiros positivos).</span>";
+      if (!notaFiscal || isNaN(notaFiscal) || parseInt(notaFiscal) <= 0) {
+        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Digite um número de nota válido.</span>";
         return;
       }
-
       if (!telefone || !nomeCliente || nomeCliente === 'Cliente não cadastrado' || valorNota <= 0 || pontos <= 0) {
         document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Dados inválidos. Confirme o telefone, nota fiscal e valor da nota.</span>";
         return;
@@ -236,32 +134,31 @@
       // Pede a senha do cliente via prompt
       const senhaCliente = prompt("Digite a senha do cliente para confirmar:");
       if (!senhaCliente) return;
-
-      // Confere senha no banco
       const q = query(collection(db, "clientes"), where("telefone", "==", telefone), where("senha", "==", senhaCliente));
       const snap = await getDocs(q);
       if (snap.empty) {
         document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Senha incorreta para este cliente!</span>";
         return;
       }
-
       const docRef = doc(db, "clientes", snap.docs[0].id);
 
       // Atualiza pontos gerados
-      await updateDoc(docRef, {
-        pontos_gerados: increment(pontos)
+      await updateDoc(docRef, { pontos_gerados: increment(pontos) });
+
+      // Grava histórico em "notas_pontos" com operador
+      await addDoc(collection(db, "notas_pontos"), {
+        cliente: nomeCliente,
+        telefone: telefone,
+        nota: notaFiscal,
+        data: new Date(),
+        total_venda: valorNota,
+        pontos: pontos,
+        operadorNome,
+        operadorId
       });
 
-      // Busca novo saldo
-      const clienteData = (await getDocs(query(collection(db, "clientes"), where("telefone", "==", telefone)))).docs[0].data();
-      const saldo = (clienteData.pontos_gerados || 0) - (clienteData.pontos_resgatados || 0);
-
-      // Mensagem de sucesso em novo HTML
-      sessionStorage.setItem("parabens_nome", nomeCliente);
-      sessionStorage.setItem("parabens_ganhos", pontos.toLocaleString("pt-BR", {minimumFractionDigits: 2}));
-      sessionStorage.setItem("parabens_saldo", saldo.toLocaleString("pt-BR", {minimumFractionDigits: 2}));
-      sessionStorage.setItem("parabens_nota", notaFiscal); // SALVA O NÚMERO DA NOTA para exibir depois
-      window.location.href = "parabens-pontos.html";
+      // Mensagem de sucesso (aqui pode redirecionar se quiser)
+      document.getElementById("msg-pontos").innerHTML = "<span class='text-success'>Pontos gerados e registrados!</span>";
     });
 
     window.logout = function() {
