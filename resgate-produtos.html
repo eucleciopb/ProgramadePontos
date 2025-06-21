@@ -1,3 +1,4 @@
+<!-- resgate-produtos.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -39,15 +40,12 @@
       border: 1.5px solid #e6e6e6;
       font-size: 1rem;
       padding: 0.7rem 1rem;
-      transition: border-color .18s;
-      box-shadow: none;
     }
     .form-control:focus, .form-select:focus {
       border-color: #198754;
       box-shadow: 0 0 0 1.5px #19875433;
       outline: none;
       background: #fff8f8;
-      transition: background 0.2s;
     }
     .form-readonly {
       background: #f6f6f6;
@@ -60,16 +58,10 @@
       font-weight: bold;
       font-size: 1.09rem;
       padding: 0.6rem 1rem;
-      letter-spacing: .01em;
       margin-top: 0.8rem;
       background: #198754;
       border: none;
       box-shadow: 0 2px 8px rgba(25,135,84,0.09);
-      transition: background 0.19s, transform .17s;
-    }
-    .btn-success:hover, .btn-success:focus {
-      background: #145c35 !important;
-      transform: scale(1.03);
     }
     .btn-disabled {
       background: #cccccc !important;
@@ -167,7 +159,6 @@
     let produtosResgate = [];
     let produtosResgatadosNoMes = [];
 
-    // Função para buscar produtos que o cliente NÃO resgatou no mês corrente
     async function carregarProdutosDisponiveisParaCliente(clienteId) {
       const produtosSnap = await getDocs(collection(db, "produtos_resgate"));
       produtosResgate = [];
@@ -181,12 +172,10 @@
         return;
       }
 
-      // Definir início e fim do mês atual
       const agora = new Date();
       const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1, 0, 0, 0, 0);
       const inicioProxMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 1, 0, 0, 0, 0);
 
-      // Buscar resgates desse cliente neste mês
       const resgatesSnap = await getDocs(
         query(
           collection(db, "resgates"),
@@ -296,7 +285,7 @@
         return;
       }
 
-      // Checa de novo no banco se já resgatou esse produto esse mês (EVITA DUPLO RESGATE RAPIDO!)
+      // Checa de novo no banco se já resgatou esse produto esse mês
       const agora = new Date();
       const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1, 0, 0, 0, 0);
       const inicioProxMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 1, 0, 0, 0, 0);
@@ -328,13 +317,19 @@
         pontos_resgatados: increment(produto.pontos)
       });
 
+      // Data/hora string
+      const agoraString = (new Date()).toLocaleString("pt-BR");
+
       // Grava o resgate na coleção "resgates"
       await addDoc(collection(db, "resgates"), {
         clienteId: clienteDocId,
         produtoId: produtoId,
         nomeCliente: document.getElementById("nomeCliente").value,
         nomeProduto: produto.nome,
-        dataResgate: Timestamp.fromDate(new Date())
+        pontos: produto.pontos,
+        dataResgate: Timestamp.fromDate(new Date()),
+        dataResgateString: agoraString,
+        operador: nome
       });
 
       // Atualiza saldo local
@@ -348,7 +343,7 @@
 
     window.logout = function() {
       sessionStorage.clear();
-      window.location.href = "menu.html";
+      window.location.href = "login.html";
     }
   </script>
 </body>

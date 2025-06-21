@@ -24,9 +24,6 @@
       transition: box-shadow .25s;
       text-align: center;
     }
-    .points-card:hover {
-      box-shadow: 0 12px 40px rgba(44,62,80,.16), 0 2px 12px rgba(44,62,80,.10);
-    }
     h2 {
       font-size: 1.7rem;
       font-weight: bold;
@@ -42,15 +39,12 @@
       border: 1.5px solid #e6e6e6;
       font-size: 1rem;
       padding: 0.7rem 1rem;
-      transition: border-color .18s;
-      box-shadow: none;
     }
     .form-control:focus {
       border-color: #198754;
       box-shadow: 0 0 0 1.5px #19875433;
       outline: none;
       background: #f8fffa;
-      transition: background 0.2s;
     }
     .form-readonly {
       background: #f6f6f6;
@@ -63,14 +57,8 @@
       font-weight: bold;
       font-size: 1.09rem;
       padding: 0.6rem 1rem;
-      letter-spacing: .01em;
       margin-top: 0.8rem;
       box-shadow: 0 2px 8px rgba(25,135,84,0.09);
-      transition: transform .17s;
-    }
-    .btn-success:hover, .btn-success:focus {
-      transform: scale(1.03);
-      background: #157347 !important;
     }
     .logout {
       margin-top: 1.5rem;
@@ -100,7 +88,6 @@
       padding-left: 1rem;
       padding-right: 1rem;
       font-size: 1.09rem;
-      box-shadow: none !important;
       display: flex;
       align-items: center;
       font-weight: 600;
@@ -113,7 +100,6 @@
       font-weight: 500;
       border-radius: 0.9rem !important;
       margin-left: 0.5rem;
-      box-shadow: none !important;
       height: 2.2rem;
     }
   </style>
@@ -123,7 +109,6 @@
     <div id="user-info">Carregando usuário...</div>
     <h2>Gerador de Pontos</h2>
     <form id="pontosForm" autocomplete="off">
-      <!-- TELEFONE ESTILIZADO -->
       <div class="input-group custom-input-group">
         <span class="input-group-text label-telefone">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#27ae60" viewBox="0 0 24 24" style="margin-right:5px;"><path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1-.24c1.12.37 2.33.57 3.59.57a1 1 0 0 1 1 1v3.25a1 1 0 0 1-1 1A17 17 0 0 1 3 5a1 1 0 0 1 1-1h3.25a1 1 0 0 1 1 1c0 1.26.2 2.47.57 3.59a1 1 0 0 1-.24 1l-2.2 2.2z"/></svg>
@@ -131,7 +116,6 @@
         </span>
         <input type="tel" class="form-control telefone-highlight" id="telefone" required placeholder="(xx) xxxxx-xxxx" maxlength="15" />
       </div>
-
       <div class="mb-3 text-start">
         <label class="form-label">Nome do Cliente</label>
         <input type="text" class="form-control form-readonly" id="nomeCliente" readonly />
@@ -148,10 +132,6 @@
         <label class="form-label">Pontos Gerados (5%)</label>
         <input type="text" class="form-control form-readonly" id="pontosGerados" readonly />
       </div>
-      <div class="mb-3 text-start">
-        <label class="form-label">Data/Hora do Lançamento</label>
-        <input type="text" class="form-control form-readonly" id="dataLancamento" readonly />
-      </div>
       <button type="submit" class="btn btn-success w-100">Gerar Pontos</button>
     </form>
     <div id="msg-pontos" style="margin-top: 1.3rem;"></div>
@@ -166,10 +146,10 @@
       query,
       where,
       getDocs,
+      addDoc,
       updateDoc,
       doc,
       increment,
-      addDoc,
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // CONFIG FIREBASE
@@ -185,28 +165,10 @@
     const db = getFirestore(app);
 
     // Exibe usuário logado
-    const nomeOperador = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
+    const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
     document.getElementById("user-info").innerHTML =
-      `<b>Usuário:</b> ${nomeOperador}<br><b>Nível:</b> ${nivel}`;
-
-    // Função para formatar data/hora
-    function formatarDataHora(date) {
-      const dia = String(date.getDate()).padStart(2, '0');
-      const mes = String(date.getMonth() + 1).padStart(2, '0');
-      const ano = date.getFullYear();
-      const hora = String(date.getHours()).padStart(2, '0');
-      const min = String(date.getMinutes()).padStart(2, '0');
-      return `${dia}/${mes}/${ano} ${hora}:${min}`;
-    }
-
-    // Preenche a data/hora no campo
-    function atualizarDataHora() {
-      const agora = new Date();
-      document.getElementById("dataLancamento").value = formatarDataHora(agora);
-    }
-    setInterval(atualizarDataHora, 1000);
-    atualizarDataHora();
+      `<b>Usuário:</b> ${nome}<br><b>Nível:</b> ${nivel}`;
 
     // Limpar mensagem ao trocar telefone
     document.getElementById("telefone").addEventListener("input", () => {
@@ -244,7 +206,6 @@
       const notaFiscal = document.getElementById("notaFiscal").value.trim();
       const valorNota = parseFloat(document.getElementById("valorNota").value.replace(',','.')) || 0;
       const pontos = parseFloat(document.getElementById("pontosGerados").value.replace(',','.')) || 0;
-      const dataLancamento = document.getElementById("dataLancamento").value;
 
       // Validação número da nota fiscal (apenas inteiros positivos)
       if (!notaFiscal || isNaN(notaFiscal) || parseInt(notaFiscal) != Number(notaFiscal) || parseInt(notaFiscal) <= 0) {
@@ -254,6 +215,14 @@
 
       if (!telefone || !nomeCliente || nomeCliente === 'Cliente não cadastrado' || valorNota <= 0 || pontos <= 0) {
         document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Dados inválidos. Confirme o telefone, nota fiscal e valor da nota.</span>";
+        return;
+      }
+
+      // Checa duplicidade da nota fiscal
+      const qNota = query(collection(db, "notas_pontos"), where("nota", "==", notaFiscal));
+      const snapNota = await getDocs(qNota);
+      if (!snapNota.empty) {
+        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Esta nota fiscal já foi lançada!</span>";
         return;
       }
 
@@ -268,34 +237,26 @@
         document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Senha incorreta para este cliente!</span>";
         return;
       }
-      const clienteId = snap.docs[0].id;
 
-      // Verifica duplicidade de nota fiscal para esse cliente
-      const qNota = query(
-        collection(db, "notas_pontos"),
-        where("clienteId", "==", clienteId),
-        where("nota", "==", notaFiscal)
-      );
-      const snapNota = await getDocs(qNota);
-      if (!snapNota.empty) {
-        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Esta nota fiscal já foi lançada para este cliente!</span>";
-        return;
-      }
+      const docRef = doc(db, "clientes", snap.docs[0].id);
 
-      // Atualiza pontos gerados no cliente
-      await updateDoc(doc(db, "clientes", clienteId), {
+      // Atualiza pontos gerados
+      await updateDoc(docRef, {
         pontos_gerados: increment(pontos)
       });
 
-      // Grava registro na coleção "notas_pontos"
+      // Data como string (data+hora)
+      const now = new Date();
+      const dataString = now.toLocaleString("pt-BR");
+
+      // Salva nota no banco
       await addDoc(collection(db, "notas_pontos"), {
-        clienteId,
         cliente: nomeCliente,
         nota: notaFiscal,
+        data: dataString,
         total_venda: valorNota,
-        pontos,
-        data: dataLancamento,
-        operador: nomeOperador
+        pontos: pontos,
+        operador: nome
       });
 
       // Busca novo saldo
@@ -306,13 +267,13 @@
       sessionStorage.setItem("parabens_nome", nomeCliente);
       sessionStorage.setItem("parabens_ganhos", pontos.toLocaleString("pt-BR", {minimumFractionDigits: 2}));
       sessionStorage.setItem("parabens_saldo", saldo.toLocaleString("pt-BR", {minimumFractionDigits: 2}));
-      sessionStorage.setItem("parabens_nota", notaFiscal); // SALVA O NÚMERO DA NOTA para exibir depois
+      sessionStorage.setItem("parabens_nota", notaFiscal);
       window.location.href = "parabens-pontos.html";
     });
 
     window.logout = function() {
       sessionStorage.clear();
-      window.location.href = "menu.html";
+      window.location.href = "login.html";
     }
   </script>
 </body>

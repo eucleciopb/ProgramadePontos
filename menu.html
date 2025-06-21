@@ -58,15 +58,13 @@
       background: #dc3545;
       color: #fff;
       border: none;
-      padding: 0.22rem 0.8rem;
-      border-radius: 0.6rem;
-      font-size: 0.93rem;
-      font-weight: bold;
-      transition: background 0.2s;
+      border-radius: 0.5rem;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.92rem;
+      transition: background 0.15s;
     }
     .btn-excluir:hover {
-      background: #b81c23;
-      color: #fff;
+      background: #a81c33;
     }
   </style>
 </head>
@@ -76,16 +74,16 @@
       <h1 class="text-center">📲 Programa de Pontos</h1>
       <div id="user-info" class="user-info">Carregando usuário...</div>
 
-      <a href="cadastrocliente.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-user-plus"></i> Cadastro de Clientes
+      <a href="cadastroclientes.html" class="btn btn-outline-dark btn-menu">
+        <i class="fa-solid fa-users"></i> Consulta de Clientes
       </a>
       <a href="cadastrooperadores.html" class="btn btn-outline-dark btn-menu">
-        <i class="fa-solid fa-users-gear"></i> Cadastro de Operadores
+        <i class="fa-solid fa-users-gear"></i> Consulta de Operadores
       </a>
       <a href="CadastrodeProdutos.html" class="btn btn-outline-dark btn-menu">
         <i class="fa-solid fa-box-open"></i> Cadastro de Produtos
       </a>
-      <a href="geradordepontos.html" class="btn btn-outline-success btn-menu">
+      <a href="gerador-de-pontos.html" class="btn btn-outline-success btn-menu">
         <i class="fa-solid fa-bolt"></i> Gerador de Pontos
       </a>
       <a href="resgate-produtos.html" class="btn btn-outline-danger btn-menu">
@@ -116,9 +114,7 @@
               <th>Ações</th>
             </tr>
           </thead>
-          <tbody id="tabelaNotas">
-            <tr><td colspan="7" class="text-center text-secondary">Nenhum registro encontrado.</td></tr>
-          </tbody>
+          <tbody id="tabelaNotas"></tbody>
         </table>
       </div>
     </div>
@@ -140,9 +136,7 @@
               <th>Operador</th>
             </tr>
           </thead>
-          <tbody id="tabelaTrocas">
-            <tr><td colspan="5" class="text-center text-secondary">Nenhum registro encontrado.</td></tr>
-          </tbody>
+          <tbody id="tabelaTrocas"></tbody>
         </table>
       </div>
     </div>
@@ -173,17 +167,15 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Dados do usuário logado
+    // Preenche usuário logado
     const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
-    const loginAnterior = localStorage.getItem("login_anterior") || "Não registrado";
     document.getElementById("user-info").innerHTML = `
       <b>Usuário:</b> ${nome}<br>
-      <b>Nível:</b> ${nivel}<br>
-      <b>Último login:</b> ${loginAnterior}
+      <b>Nível:</b> ${nivel}
     `;
 
-    // Carregar últimas 20 notas com pontos
+    // Últimas notas com pontos
     async function carregarNotas() {
       const ref = collection(db, "notas_pontos");
       const q = query(ref, orderBy("data", "desc"), limit(20));
@@ -191,19 +183,20 @@
       const tabela = document.getElementById("tabelaNotas");
       tabela.innerHTML = "";
       if (snapshot.empty) {
-        tabela.innerHTML = `<tr><td colspan="7" class="text-center text-secondary">Nenhum registro encontrado.</td></tr>`;
+        tabela.innerHTML = `<tr><td colspan="7" class="text-center">Nenhum registro encontrado.</td></tr>`;
         return;
       }
       snapshot.forEach(docSnap => {
         const n = docSnap.data();
+        const dataFormatada = n.data || ""; // String salva
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${n.cliente || "-"}</td>
-          <td>${n.nota || "-"}</td>
-          <td>${n.data || "-"}</td>
-          <td>R$ ${n.total_venda !== undefined ? (Number(n.total_venda)).toFixed(2) : "0.00"}</td>
-          <td>${n.pontos || "-"}</td>
-          <td>${n.operador || "-"}</td>
+          <td>${n.cliente}</td>
+          <td>${n.nota}</td>
+          <td>${dataFormatada}</td>
+          <td>R$ ${n.total_venda?.toFixed(2) || 0}</td>
+          <td>${n.pontos}</td>
+          <td>${n.operador || '-'}</td>
           <td>
             <button class="btn-excluir" onclick="excluirNota('${docSnap.id}')">Excluir</button>
           </td>
@@ -212,24 +205,25 @@
       });
     }
 
-    // Carregar últimas 20 trocas
+    // Últimas trocas de produtos (resgates)
     async function carregarTrocas() {
-      const ref = collection(db, "trocas_produtos");
-      const q = query(ref, orderBy("data", "desc"), limit(20));
+      const ref = collection(db, "resgates");
+      const q = query(ref, orderBy("dataResgateString", "desc"), limit(20));
       const snapshot = await getDocs(q);
       const tabela = document.getElementById("tabelaTrocas");
       tabela.innerHTML = "";
       if (snapshot.empty) {
-        tabela.innerHTML = `<tr><td colspan="5" class="text-center text-secondary">Nenhum registro encontrado.</td></tr>`;
+        tabela.innerHTML = `<tr><td colspan="5" class="text-center">Nenhum registro encontrado.</td></tr>`;
         return;
       }
       snapshot.forEach(docSnap => {
         const t = docSnap.data();
+        const dataResgate = t.dataResgateString || "";
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${t.cliente || "-"}</td>
-          <td>${t.produto || "-"}</td>
-          <td>${t.data || "-"}</td>
+          <td>${t.nomeCliente || "-"}</td>
+          <td>${t.nomeProduto || "-"}</td>
+          <td>${dataResgate}</td>
           <td>${t.pontos || "-"}</td>
           <td>${t.operador || "-"}</td>
         `;
@@ -237,26 +231,23 @@
       });
     }
 
-    // Excluir nota
+    // Excluir nota com pontos
     window.excluirNota = async (id) => {
-      if (confirm("Tem certeza que deseja excluir este registro?")) {
+      if (confirm("Deseja excluir este registro?")) {
         await deleteDoc(doc(db, "notas_pontos", id));
         carregarNotas();
       }
     };
 
-    // Exportar Excel (placeholder)
-    window.exportarExcel = function (tipo) {
-      alert(`Função de exportação para '${tipo}' será implementada.`);
-    }
-
-    // Logout
     window.logout = function () {
       sessionStorage.clear();
       window.location.href = "index.html";
     }
 
-    // Carrega dados na inicialização
+    window.exportarExcel = function (tipo) {
+      alert(`Função de exportação para '${tipo}' será implementada.`);
+    }
+
     carregarNotas();
     carregarTrocas();
   </script>
