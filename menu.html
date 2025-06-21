@@ -11,65 +11,38 @@
       background: linear-gradient(135deg, #f8fafc, #e2e8f0);
       font-family: 'Segoe UI', sans-serif;
       min-height: 100vh;
-      padding: 2rem;
+      padding: 1.5rem;
     }
     .menu-card {
       background: #ffffff;
       border-radius: 2rem;
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-      padding: 2.5rem 1.8rem;
-      max-width: 420px;
-      width: 100%;
-      text-align: center;
-      margin: 0 auto 2rem;
-      animation: slideIn 0.5s ease-out;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    h1 {
-      font-size: 1.8rem;
-      font-weight: bold;
-      margin-bottom: 1.2rem;
-      color: #1e293b;
+      padding: 2rem;
+      margin-bottom: 2rem;
     }
     .user-info {
       font-size: 0.95rem;
       color: #334155;
-      margin-bottom: 1.8rem;
       background: #f1f5f9;
       padding: 0.8rem;
       border-radius: 1rem;
+      margin-bottom: 1.5rem;
     }
     .btn-menu {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
       gap: 0.8rem;
       font-size: 1.05rem;
       font-weight: 500;
-      padding: 0.9rem 1.2rem;
+      padding: 0.8rem 1rem;
       border-radius: 1.2rem;
-      margin-bottom: 0.85rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      transition: transform 0.18s ease-in-out;
+      margin-bottom: 0.75rem;
     }
-    .btn-menu i {
-      font-size: 1.2rem;
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #1e293b;
     }
-    .btn-menu:hover {
-      transform: scale(1.03);
-    }
-    .btn-outline-dark { border: 2px solid #334155; color: #334155; }
-    .btn-outline-dark:hover { background: #334155; color: #fff; }
-
-    .btn-outline-success { border: 2px solid #198754; color: #198754; }
-    .btn-outline-success:hover { background: #198754; color: #fff; }
-
-    .btn-outline-danger { border: 2px solid #dc3545; color: #dc3545; }
-    .btn-outline-danger:hover { background: #dc3545; color: #fff; }
-
     .logout {
       color: #dc3545;
       font-size: 0.95rem;
@@ -78,67 +51,52 @@
       transition: opacity 0.2s;
     }
     .logout:hover { opacity: 0.7; }
-
-    .dashboard {
-      max-width: 1000px;
-      margin: 2rem auto;
-    }
-    .table-section {
-      background: #fff;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.05);
-    }
-    .table-section h4 {
-      margin-bottom: 1rem;
-      color: #1e293b;
-    }
-    .btn-export {
-      float: right;
-      margin-top: -2.5rem;
+    table {
+      font-size: 0.85rem;
     }
   </style>
 </head>
 <body>
-  <div class="menu-card">
-    <h1>📲 Programa de Pontos</h1>
+  <div class="container">
+    <div class="menu-card">
+      <h1 class="text-center">📲 Programa de Pontos</h1>
+      <div id="user-info" class="user-info">Carregando usuário...</div>
 
-    <div id="user-info" class="user-info">Carregando usuário...</div>
+      <a href="cadastrocliente.html" class="btn btn-outline-dark btn-menu">
+        <i class="fa-solid fa-user-plus"></i> Cadastro de Clientes
+      </a>
+      <a href="cadastrooperadores.html" class="btn btn-outline-dark btn-menu">
+        <i class="fa-solid fa-users-gear"></i> Cadastro de Operadores
+      </a>
+      <a href="CadastrodeProdutos.html" class="btn btn-outline-dark btn-menu">
+        <i class="fa-solid fa-box-open"></i> Cadastro de Produtos
+      </a>
+      <a href="geradordepontos.html" class="btn btn-outline-success btn-menu">
+        <i class="fa-solid fa-bolt"></i> Gerador de Pontos
+      </a>
+      <a href="resgate-produtos.html" class="btn btn-outline-danger btn-menu">
+        <i class="fa-solid fa-gift"></i> Resgate de Produtos
+      </a>
 
-    <a href="cadastrocliente.html" class="btn btn-outline-dark btn-menu">
-      <i class="fa-solid fa-user-plus"></i> Cadastro de Clientes
-    </a>
-    <a href="cadastrooperadores.html" class="btn btn-outline-dark btn-menu">
-      <i class="fa-solid fa-users-gear"></i> Cadastro de Operadores
-    </a>
-    <a href="CadastrodeProdutos.html" class="btn btn-outline-dark btn-menu">
-      <i class="fa-solid fa-box-open"></i> Cadastro de Produtos
-    </a>
-    <a href="geradordepontos.html" class="btn btn-outline-success btn-menu">
-      <i class="fa-solid fa-bolt"></i> Gerador de Pontos
-    </a>
-    <a href="resgate-produtos.html" class="btn btn-outline-danger btn-menu">
-      <i class="fa-solid fa-gift"></i> Resgate de Produtos
-    </a>
-
-    <div class="logout" onclick="logout()">
-      <i class="fa-solid fa-right-from-bracket"></i> Sair
+      <div class="logout" onclick="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair
+      </div>
     </div>
-  </div>
 
-  <div class="dashboard">
-    <div class="table-section">
-      <h4>🧾 Últimas 20 Notas com Pontos Gerados</h4>
-      <button class="btn btn-sm btn-outline-primary btn-export"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+    <!-- Últimas notas com pontos -->
+    <div class="menu-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="section-title">📄 Últimas 20 Notas com Pontos</div>
+        <button class="btn btn-sm btn-outline-secondary" onclick="exportarExcel('notas')">Exportar Excel</button>
+      </div>
       <div class="table-responsive">
-        <table class="table table-sm table-bordered">
+        <table class="table table-striped table-bordered">
           <thead class="table-light">
             <tr>
               <th>Cliente</th>
               <th>Nota Fiscal</th>
               <th>Data</th>
-              <th>Total da Venda</th>
+              <th>Total Venda</th>
               <th>Pontos Gerados</th>
             </tr>
           </thead>
@@ -147,16 +105,20 @@
       </div>
     </div>
 
-    <div class="table-section">
-      <h4>🎁 Últimas 20 Trocas de Produtos</h4>
-      <button class="btn btn-sm btn-outline-primary btn-export"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+    <!-- Últimas trocas -->
+    <div class="menu-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="section-title">🎁 Últimas 20 Trocas de Produtos</div>
+        <button class="btn btn-sm btn-outline-secondary" onclick="exportarExcel('trocas')">Exportar Excel</button>
+      </div>
       <div class="table-responsive">
-        <table class="table table-sm table-bordered">
+        <table class="table table-striped table-bordered">
           <thead class="table-light">
             <tr>
               <th>Cliente</th>
               <th>Produto</th>
-              <th>Data da Troca</th>
+              <th>Data</th>
+              <th>Pontos Trocados</th>
             </tr>
           </thead>
           <tbody id="tabelaTrocas"></tbody>
@@ -166,37 +128,87 @@
   </div>
 
   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      limit,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBoEFGxMUgb-MUbWpNzRbUEpEQDXes4wcc",
+      authDomain: "programa-de-pontos-nh.firebaseapp.com",
+      projectId: "programa-de-pontos-nh",
+      storageBucket: "programa-de-pontos-nh.firebasestorage.app",
+      messagingSenderId: "136030554657",
+      appId: "1:136030554657:web:9bc5561eddc658ab087160"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
-
-    const agora = new Date();
-    const dataHoje = agora.toLocaleDateString('pt-BR');
-    const horaHoje = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-    const loginAtual = `${dataHoje} às ${horaHoje}`;
-    const ultimaDataSalva = localStorage.getItem("data_hoje");
-
-    if (ultimaDataSalva !== dataHoje) {
-      const loginAnteriorSalvo = localStorage.getItem("login_atual");
-      if (loginAnteriorSalvo) {
-        localStorage.setItem("login_anterior", loginAnteriorSalvo);
-      }
-      localStorage.setItem("login_atual", loginAtual);
-      localStorage.setItem("data_hoje", dataHoje);
-    }
-
     const loginAnterior = localStorage.getItem("login_anterior") || "Não registrado";
-
     document.getElementById("user-info").innerHTML = `
       <b>Usuário:</b> ${nome}<br>
       <b>Nível:</b> ${nivel}<br>
       <b>Último login:</b> ${loginAnterior}
     `;
 
+    async function carregarNotas() {
+      const ref = collection(db, "notas_pontos");
+      const q = query(ref, orderBy("data", "desc"), limit(20));
+      const snapshot = await getDocs(q);
+      const tabela = document.getElementById("tabelaNotas");
+      tabela.innerHTML = "";
+      snapshot.forEach(doc => {
+        const n = doc.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${n.cliente}</td>
+          <td>${n.nota}</td>
+          <td>${n.data}</td>
+          <td>R$ ${n.total_venda?.toFixed(2) || 0}</td>
+          <td>${n.pontos}</td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
+
+    async function carregarTrocas() {
+      const ref = collection(db, "trocas_produtos");
+      const q = query(ref, orderBy("data", "desc"), limit(20));
+      const snapshot = await getDocs(q);
+      const tabela = document.getElementById("tabelaTrocas");
+      tabela.innerHTML = "";
+      snapshot.forEach(doc => {
+        const t = doc.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.cliente}</td>
+          <td>${t.produto}</td>
+          <td>${t.data}</td>
+          <td>${t.pontos}</td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
+
     window.logout = function () {
       sessionStorage.clear();
       window.location.href = "index.html";
     }
+
+    window.exportarExcel = function (tipo) {
+      alert(`Função de exportação para '${tipo}' será implementada.`);
+    }
+
+    carregarNotas();
+    carregarTrocas();
   </script>
 </body>
 </html>
