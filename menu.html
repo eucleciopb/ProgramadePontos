@@ -114,39 +114,33 @@
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
 
     const agora = new Date();
-    const hoje = agora.toISOString().split('T')[0]; // YYYY-MM-DD
-    const horaCompleta = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const dataLocal = agora.toLocaleDateString('pt-BR'); // ex: 20/06/2025
+    const horaLocal = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); // ex: 15:32
+    const dataHoraLocal = `${dataLocal} às ${horaLocal}`;
 
-    const dataHoraAtual = `${hoje} ${horaCompleta}`;
+    const ultimaDataRegistrada = localStorage.getItem("data_atual");
 
-    let ultimoLogin = localStorage.getItem("data_ultimo_login");
-
-    if (ultimoLogin !== hoje) {
-      if (localStorage.getItem("data_hora_login_atual")) {
-        localStorage.setItem("ultimo_login_anterior", localStorage.getItem("data_hora_login_atual"));
+    // Se ainda não registrou login hoje, atualiza e salva o anterior
+    if (ultimaDataRegistrada !== dataLocal) {
+      const anterior = localStorage.getItem("data_hora_atual");
+      if (anterior) {
+        localStorage.setItem("data_login_anterior", anterior);
       }
-      localStorage.setItem("data_ultimo_login", hoje);
-      localStorage.setItem("data_hora_login_atual", dataHoraAtual);
+      localStorage.setItem("data_atual", dataLocal);
+      localStorage.setItem("data_hora_atual", dataHoraLocal);
     }
 
-    const loginAnterior = localStorage.getItem("ultimo_login_anterior") || "Não registrado";
-
-    function formatarDataHora(isoData) {
-      if (!isoData.includes(" ")) return isoData;
-      const [data, hora] = isoData.split(" ");
-      const [ano, mes, dia] = data.split("-");
-      return `${dia}/${mes}/${ano} às ${hora}`;
-    }
+    const loginAnterior = localStorage.getItem("data_login_anterior") || "Não registrado";
 
     document.getElementById("user-info").innerHTML = `
       <b>Usuário:</b> ${nome}<br>
       <b>Nível:</b> ${nivel}<br>
-      <b>Último login:</b> ${formatarDataHora(loginAnterior)}
+      <b>Último login:</b> ${loginAnterior}
     `;
 
     window.logout = function () {
       sessionStorage.clear();
-      window.location.href = "index.html"; // redireciona para index
+      window.location.href = "index.html"; // redireciona corretamente
     }
   </script>
 </body>
