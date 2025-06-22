@@ -86,14 +86,36 @@
       font-weight: bold;
       font-size: 1.1rem;
     }
+    .btn-voltar-menu {
+      display: block;
+      margin: 0 auto 2.1rem auto;
+      background: #198754;
+      color: #fff;
+      border: none;
+      font-weight: 500;
+      padding: 0.7rem 1.6rem;
+      border-radius: 1.2rem;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 10px rgba(25, 135, 84, 0.10);
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none;
+      text-align: center;
+    }
+    .btn-voltar-menu:hover, .btn-voltar-menu:focus {
+      background: #145c35;
+      color: #fff;
+      text-decoration: none;
+    }
     @media (max-width: 700px) {
       .extrato-card { padding: 1rem; }
       .table-responsive { font-size: 0.96rem; }
       .extrato-title { font-size: 1.3rem; }
+      .btn-voltar-menu { font-size: 1rem; padding: 0.6rem 1.2rem;}
     }
   </style>
 </head>
 <body>
+  <a href="menu.html" class="btn-voltar-menu"><i class="fa-solid fa-arrow-left"></i> Voltar ao Menu</a>
   <div class="extrato-card">
     <h2 class="extrato-title">Extrato do Cliente</h2>
     <div class="search-group">
@@ -120,7 +142,8 @@
     </div>
     <div class="msg-erro" id="msgErro"></div>
   </div>
-
+  <!-- Font Awesome para ícone -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
