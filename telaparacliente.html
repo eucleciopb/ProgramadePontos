@@ -14,7 +14,6 @@
       position: relative;
       overflow-x: hidden;
     }
-    /* Animação do fundo */
     .bg-promo {
       position: fixed;
       z-index: 0;
@@ -50,8 +49,6 @@
       margin-left: 1rem;
       box-shadow: 0 2px 8px #e21a3544;
     }
-
-    /* Cartão de login */
     .cliente-card {
       max-width: 440px;
       margin: 0 auto;
@@ -83,8 +80,6 @@
       animation: shake .25s;
     }
     @keyframes shake { 10% { transform: translateX(-3px);} 20%{transform:translateX(3px);} 30%{transform:translateX(-2px);} 40%{transform:translateX(2px);} 100%{transform:none;} }
-
-    /* Saldo e catálogo */
     .saldo-box {
       background: linear-gradient(90deg,#e21a35 0,#20c997 100%);
       color: #fff;
@@ -104,7 +99,6 @@
       50% { box-shadow: 0 4px 28px #e21a3550;}
       100% { box-shadow: 0 2px 12px #19875422;}
     }
-
     .catalogo-card {
       max-width: 960px;
       margin: 5vh auto 0 auto;
@@ -117,7 +111,6 @@
       animation: fadeInUp .9s;
     }
     @keyframes fadeInUp { from { opacity:0; transform: translateY(60px);} to{opacity:1; transform:none;} }
-
     .prod-card {
       border-radius: 1.1rem;
       padding: 1.3rem 1rem 1.1rem 1.4rem;
@@ -150,7 +143,6 @@
       box-shadow: 0 1px 3px #1a703155;
       padding: 0.6rem 1.2rem;
     }
-    /* selo novo/promocao */
     .selo-promo-prod {
       position: absolute;
       right: 14px; top: 12px;
@@ -233,7 +225,6 @@
     <div class="cliente-card">
       <div class="logo-box" style="margin-bottom:10px;">
         <div class="logo-nh">
-          <!-- Mesma logo comprimido -->
           <svg viewBox="0 0 64 64" width="40" height="40">
             <ellipse cx="32" cy="32" rx="26" ry="20" fill="#fff" stroke="#ccc" stroke-width="2"/>
             <path d="M6 32 a26 20 0 0 1 52 0" fill="#e21a35"/>
@@ -301,7 +292,6 @@
         return;
       }
 
-      // Busca cliente
       const q = query(collection(db, "clientes"), where("telefone", "==", tel), where("senha", "==", senha));
       const snap = await getDocs(q);
 
@@ -313,7 +303,6 @@
       clienteLogado = snap.docs[0].data();
       clienteId = snap.docs[0].id;
 
-      // Mostra área do cliente
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("clienteBox").style.display = "block";
       document.getElementById("clienteNome").innerText = clienteLogado.nome || "-";
@@ -323,7 +312,6 @@
     };
 
     document.getElementById("sairBtn").onclick = () => {
-      // Reset tela
       document.getElementById("loginBox").style.display = "";
       document.getElementById("clienteBox").style.display = "none";
       document.getElementById("telefone").value = "";
@@ -337,11 +325,9 @@
     };
 
     async function mostrarSaldo() {
-      // Busca e soma os pontos ganhos e resgatados pelo cliente
       let pontosGanhos = 0;
       let pontosResgatados = 0;
 
-      // Notas com pontos (ganhos)
       const qGanho = query(collection(db, "notas_pontos"), where("cliente", "==", clienteLogado.nome));
       const snapGanho = await getDocs(qGanho);
       snapGanho.forEach(doc => {
@@ -349,7 +335,6 @@
         pontosGanhos += Number(d.pontos) || 0;
       });
 
-      // Resgates (descontos)
       const qResgate = query(collection(db, "resgates"), where("clienteId", "==", clienteId));
       const snapResgate = await getDocs(qResgate);
       snapResgate.forEach(doc => {
@@ -362,19 +347,16 @@
     }
 
     async function mostrarCatalogo() {
-      // Pega mês atual para filtro dos resgates
       const now = new Date();
       const mesAtual = String(now.getMonth() + 1).padStart(2, '0');
       const anoAtual = String(now.getFullYear());
 
-      // Busca todos os produtos
       const snapProdutos = await getDocs(collection(db, "produtos"));
       const produtos = [];
       snapProdutos.forEach(doc => {
         produtos.push({ id: doc.id, ...doc.data() });
       });
 
-      // Busca resgates desse cliente no mês atual
       const snapResgates = await getDocs(query(
         collection(db, "resgates"),
         where("clienteId", "==", clienteId)
@@ -382,7 +364,6 @@
       const idsResgatadosEsteMes = new Set();
       snapResgates.forEach(doc => {
         const d = doc.data();
-        // Considera dataResgateString no formato DD/MM/YYYY, ou dataResgate (timestamp)
         let dataResgate = null;
         if (d.dataResgateString) {
           const [dia, mes, ano] = d.dataResgateString.split('/');
@@ -391,12 +372,11 @@
           const data = d.dataResgate.toDate();
           dataResgate = { mes: String(data.getMonth()+1).padStart(2,'0'), ano: String(data.getFullYear()) };
         }
-        if (dataResgate && dataResgate.mes === mesAtual && dataResgate.ano === anoAtual) {
+        if (dataResgate && dataResgate.mes === mesAtual && dataResgate.ano === anoAtual && d.produtoId) {
           idsResgatadosEsteMes.add(d.produtoId);
         }
       });
 
-      // Lista produtos não resgatados no mês
       const div = document.getElementById("produtosCatalogo");
       div.innerHTML = "";
       let encontrou = false;
@@ -405,10 +385,13 @@
           encontrou = true;
           div.innerHTML += `
             <div class="prod-card">
-              <div>
-                <div class="prod-nome">${prod.nome}</div>
-                <div class="prod-desc">${prod.descricao || ""}</div>
-                <div class="prod-pontos"><i class="fa-solid fa-coins"></i> ${prod.pontos} pontos</div>
+              <div style="display:flex;gap:1.2rem;align-items:center;">
+                ${prod.imagemUrl ? `<img src="${prod.imagemUrl}" style="width:68px;height:68px;object-fit:cover;border-radius:0.8rem;border:2px solid #e21a35;background:#fff;">` : `<div style="width:68px;height:68px;background:#eee;border-radius:0.8rem;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:2rem;"><i class="fa-solid fa-box"></i></div>`}
+                <div>
+                  <div class="prod-nome">${prod.nome}</div>
+                  <div class="prod-desc">${prod.descricao || ""}</div>
+                  <div class="prod-pontos"><i class="fa-solid fa-coins"></i> ${prod.pontos} pontos</div>
+                </div>
               </div>
               <button class="btn btn-disabled" disabled>
                 Disponível para resgate
