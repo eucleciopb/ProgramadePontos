@@ -137,6 +137,7 @@
               <th>Data</th>
               <th>Pontos Trocados</th>
               <th>Operador</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody id="tabelaTrocas"></tbody>
@@ -213,7 +214,7 @@
       });
     }
 
-    // Últimas trocas de produtos (resgates)
+    // Últimas trocas de produtos (resgates) - AGORA COM EXCLUIR
     async function carregarTrocas() {
       const ref = collection(db, "resgates");
       const q = query(ref, orderBy("dataResgateString", "desc"), limit(20));
@@ -221,7 +222,7 @@
       const tabela = document.getElementById("tabelaTrocas");
       tabela.innerHTML = "";
       if (snapshot.empty) {
-        tabela.innerHTML = `<tr><td colspan="5" class="text-center">Nenhum registro encontrado.</td></tr>`;
+        tabela.innerHTML = `<tr><td colspan="6" class="text-center">Nenhum registro encontrado.</td></tr>`;
         return;
       }
       snapshot.forEach(docSnap => {
@@ -234,6 +235,9 @@
           <td>${dataResgate}</td>
           <td>${t.pontos || "-"}</td>
           <td>${t.operador || "-"}</td>
+          <td>
+            <button class="btn-excluir" onclick="excluirTroca('${docSnap.id}')">Excluir</button>
+          </td>
         `;
         tabela.appendChild(tr);
       });
@@ -244,6 +248,14 @@
       if (confirm("Deseja excluir este registro?")) {
         await deleteDoc(doc(db, "notas_pontos", id));
         carregarNotas();
+      }
+    };
+
+    // Excluir troca de produtos
+    window.excluirTroca = async (id) => {
+      if (confirm("Deseja excluir este registro?")) {
+        await deleteDoc(doc(db, "resgates", id));
+        carregarTrocas();
       }
     };
 
