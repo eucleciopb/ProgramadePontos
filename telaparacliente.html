@@ -14,6 +14,7 @@
       position: relative;
       overflow-x: hidden;
     }
+    /* Fundo animado de cápsulas */
     .bg-promo {
       position: fixed;
       z-index: 0;
@@ -181,14 +182,32 @@
   </style>
 </head>
 <body>
-  <!-- Fundo animado SVG/partículas/bolhas -->
+  <!-- Fundo animado de cápsulas -->
   <svg class="bg-promo" width="100vw" height="100vh">
-    <circle cx="14%" cy="18%" r="60" fill="#e21a3540"/>
-    <circle cx="87%" cy="11%" r="70" fill="#20c99733"/>
-    <circle cx="75%" cy="80%" r="100" fill="#20c99718"/>
-    <ellipse cx="48%" cy="70%" rx="180" ry="40" fill="#e21a3533"/>
-    <ellipse cx="65%" cy="32%" rx="38" ry="18" fill="#e21a3520"/>
-    <ellipse cx="32%" cy="55%" rx="25" ry="13" fill="#20c99722"/>
+    <!-- Cápsula 1 -->
+    <g>
+      <ellipse cx="14%" cy="22%" rx="36" ry="16" fill="#e21a35" opacity="0.13"/>
+      <ellipse cx="17%" cy="22%" rx="36" ry="16" fill="#20c997" opacity="0.13" transform="rotate(-12 100 100)"/>
+      <rect x="9%" y="17%" width="80" height="12" rx="8" fill="#fff" opacity="0.13" transform="rotate(-13 100 100)"/>
+    </g>
+    <!-- Cápsula 2 -->
+    <g>
+      <ellipse cx="83%" cy="11%" rx="40" ry="16" fill="#20c997" opacity="0.18"/>
+      <ellipse cx="86%" cy="12%" rx="40" ry="16" fill="#e21a35" opacity="0.11" transform="rotate(14 100 100)"/>
+      <rect x="80%" y="8%" width="80" height="12" rx="8" fill="#fff" opacity="0.12" transform="rotate(9 100 100)"/>
+    </g>
+    <!-- Cápsula 3 -->
+    <g>
+      <ellipse cx="32%" cy="66%" rx="46" ry="16" fill="#e21a35" opacity="0.09"/>
+      <ellipse cx="36%" cy="69%" rx="46" ry="16" fill="#20c997" opacity="0.09" transform="rotate(-10 100 100)"/>
+      <rect x="27%" y="62%" width="90" height="12" rx="8" fill="#fff" opacity="0.10" transform="rotate(-8 100 100)"/>
+    </g>
+    <!-- Cápsula 4 -->
+    <g>
+      <ellipse cx="75%" cy="83%" rx="54" ry="16" fill="#20c997" opacity="0.11"/>
+      <ellipse cx="80%" cy="84%" rx="54" ry="16" fill="#e21a35" opacity="0.10" transform="rotate(18 100 100)"/>
+      <rect x="71%" y="78%" width="110" height="13" rx="9" fill="#fff" opacity="0.08" transform="rotate(16 100 100)"/>
+    </g>
   </svg>
 
   <div id="loginBox" class="cliente-card">
@@ -372,8 +391,9 @@
           const data = d.dataResgate.toDate();
           dataResgate = { mes: String(data.getMonth()+1).padStart(2,'0'), ano: String(data.getFullYear()) };
         }
+        // Corrigido: produtoId pode ser string ou referência, sempre comparar como string
         if (dataResgate && dataResgate.mes === mesAtual && dataResgate.ano === anoAtual && d.produtoId) {
-          idsResgatadosEsteMes.add(d.produtoId);
+          idsResgatadosEsteMes.add(String(d.produtoId));
         }
       });
 
@@ -381,7 +401,7 @@
       div.innerHTML = "";
       let encontrou = false;
       produtos.forEach(prod => {
-        if (!idsResgatadosEsteMes.has(prod.id)) {
+        if (!idsResgatadosEsteMes.has(String(prod.id))) {
           encontrou = true;
           div.innerHTML += `
             <div class="prod-card">
