@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ranking de Pontos por Operador</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc, #e9ecef 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      padding: 2rem;
+    }
+    .ranking-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 6px 32px rgba(44,62,80,.08), 0 1.5px 8px rgba(44,62,80,.06);
+      padding: 2.2rem 1.5rem 2rem 1.5rem;
+    }
+    .ranking-title {
+      color: #0d6efd;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 2.1rem;
+      letter-spacing: -1px;
+    }
+    .search-group {
+      max-width: 400px;
+      margin: 0 auto 1.8rem auto;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-voltar-menu {
+      display: block;
+      margin: 0 auto 2.1rem auto;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      font-weight: 500;
+      padding: 0.7rem 1.6rem;
+      border-radius: 1.2rem;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 10px rgba(13, 110, 253, 0.10);
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none;
+      text-align: center;
+    }
+    .btn-voltar-menu:hover, .btn-voltar-menu:focus {
+      background: #063a89;
+      color: #fff;
+      text-decoration: none;
+    }
+    .table-ranking thead th {
+      background: #f8f9fa;
+      color: #063a89;
+      font-weight: 600;
+      border-top: none;
+      font-size: 1rem;
+    }
+    .table-ranking td {
+      font-size: 1.02rem;
+      vertical-align: middle;
+    }
+    @media (max-width: 700px) {
+      .ranking-card { padding: 1rem; }
+      .table-responsive { font-size: 0.96rem; }
+      .ranking-title { font-size: 1.3rem; }
+      .btn-voltar-menu { font-size: 1rem; padding: 0.6rem 1.2rem;}
+    }
+  </style>
+</head>
+<body>
+  <a href="menu.html" class="btn-voltar-menu"><i class="fa-solid fa-arrow-left"></i> Voltar ao Menu</a>
+  <div class="ranking-card">
+    <h2 class="ranking-title">Ranking de Pontos por Operador</h2>
+    <div class="search-group">
+      <input type="text" class="form-control" id="filtroNome" placeholder="Pesquisar por colaborador...">
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-ranking">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Operador</th>
+            <th>Pontos Totais</th>
+            <th>Qtd. Geradores de Pontos</th>
+          </tr>
+        </thead>
+        <tbody id="rankingTabela">
+          <!-- Conteúdo dinâmico -->
+        </tbody>
+      </table>
+    </div>
+    <div class="msg-erro text-center mt-4" id="msgErro"></div>
+  </div>
+  <!-- Font Awesome para ícone -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBoEFGxMUgb-MUbWpNzRbUEpEQDXes4wcc",
+      authDomain: "programa-de-pontos-nh.firebaseapp.com",
+      projectId: "programa-de-pontos-nh",
+      storageBucket: "programa-de-pontos-nh.firebasestorage.app",
+      messagingSenderId: "136030554657",
+      appId: "1:136030554657:web:9bc5561eddc658ab087160"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let rankingOriginal = [];
+
+    async function montarRanking() {
+      document.getElementById("rankingTabela").innerHTML = `<tr><td colspan="4" class="text-center">Carregando...</td></tr>`;
+      document.getElementById("msgErro").innerText = "";
+
+      // Busca todos os registros de notas_pontos
+      const snap = await getDocs(collection(db, "notas_pontos"));
+      if (snap.empty) {
+        document.getElementById("msgErro").innerText = "Nenhum registro encontrado!";
+        document.getElementById("rankingTabela").innerHTML = "";
+        return;
+      }
+
+      // Agrupar pontos por operador
+      const pontosPorOperador = {};
+      snap.forEach(doc => {
+        const d = doc.data();
+        const operador = d.operador || "-";
+        const pontos = Number(d.pontos) || 0;
+        if (!pontosPorOperador[operador]) {
+          pontosPorOperador[operador] = { pontosTotais: 0, quantidade: 0 };
+        }
+        pontosPorOperador[operador].pontosTotais += pontos;
+        pontosPorOperador[operador].quantidade += 1;
+      });
+
+      // Transformar em array e ordenar decrescente
+      rankingOriginal = Object.entries(pontosPorOperador)
+        .map(([operador, dados]) => ({
+          operador,
+          pontosTotais: dados.pontosTotais,
+          quantidade: dados.quantidade
+        }))
+        .sort((a, b) => b.pontosTotais - a.pontosTotais);
+
+      renderizarRanking(rankingOriginal);
+    }
+
+    function renderizarRanking(ranking) {
+      const tabela = document.getElementById("rankingTabela");
+      tabela.innerHTML = "";
+      if (ranking.length === 0) {
+        tabela.innerHTML = `<tr><td colspan="4" class="text-center">Nenhum operador encontrado.</td></tr>`;
+        return;
+      }
+      ranking.forEach((item, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="font-weight: bold">${idx + 1}</td>
+          <td>${item.operador}</td>
+          <td style="color: #198754; font-weight:600;">${item.pontosTotais}</td>
+          <td style="color:#063a89; font-weight:500;">${item.quantidade}</td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
+
+    // Filtro em tempo real por nome
+    document.getElementById("filtroNome").addEventListener("input", function() {
+      const termo = this.value.trim().toLowerCase();
+      if (!termo) {
+        renderizarRanking(rankingOriginal);
+        return;
+      }
+      const filtrado = rankingOriginal.filter(item =>
+        item.operador.toLowerCase().includes(termo)
+      );
+      renderizarRanking(filtrado);
+    });
+
+    montarRanking();
+  </script>
+</body>
+</html>
