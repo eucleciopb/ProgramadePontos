@@ -38,6 +38,16 @@
       border-radius: 1.2rem;
       margin-bottom: 0.75rem;
     }
+    .btn-menu-cliente {
+      border: 2px solid #20c997 !important;
+      color: #fff !important;
+      background: linear-gradient(90deg, #20c997 0%, #198754 100%) !important;
+      font-weight: 600;
+    }
+    .btn-menu-cliente:hover, .btn-menu-cliente:focus {
+      background: linear-gradient(90deg, #198754 0%, #20c997 100%) !important;
+      color: #fff !important;
+    }
     .section-title {
       font-weight: bold;
       margin-bottom: 1rem;
@@ -92,9 +102,12 @@
       <a href="extratocliente.html" class="btn btn-outline-primary btn-menu">
         <i class="fa-solid fa-receipt"></i> Extrato do Cliente
       </a>
-      <!-- BOTÃO RANKING -->
       <a href="ranking.html" class="btn btn-outline-info btn-menu">
         <i class="fa-solid fa-trophy"></i> Ranking de Pontos
+      </a>
+      <!-- NOVO BOTÃO ACESSO CLIENTE -->
+      <a href="telaparacliente.html" class="btn btn-menu btn-menu-cliente">
+        <i class="fa-solid fa-user-circle"></i> Acesso Cliente (Consulta e Resgate)
       </a>
       <div class="logout" onclick="logout()">
         <i class="fa-solid fa-right-from-bracket"></i> Sair

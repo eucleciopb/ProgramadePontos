@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clube de Pontos - Novo Horizonte</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(120deg, #e2f6ef 0%, #fff 50%, #ffe5e6 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+    /* Animação do fundo */
+    .bg-promo {
+      position: fixed;
+      z-index: 0;
+      top:0; left:0; width:100vw; height:100vh;
+      pointer-events: none;
+    }
+    .logo-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+      gap: 1.2rem;
+    }
+    .logo-nh {
+      width: 60px; height: 60px; border-radius: 50%; background: #fff; box-shadow: 0 2px 14px #19875444;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-nh svg { width: 48px; height: 48px; }
+    .brand-title {
+      font-weight: 800;
+      font-size: 2rem;
+      color: #1a7031;
+      letter-spacing: -2px;
+      text-shadow: 1px 2px 8px #fff, 0 1px 0 #1a703122;
+    }
+    .selo-promo {
+      background: linear-gradient(135deg,#e21a35 40%,#20c997 80%);
+      color: #fff;
+      font-weight: bold;
+      padding: 0.3rem 0.9rem;
+      border-radius: 1.5rem;
+      font-size: 1rem;
+      margin-left: 1rem;
+      box-shadow: 0 2px 8px #e21a3544;
+    }
+
+    /* Cartão de login */
+    .cliente-card {
+      max-width: 440px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.85);
+      border-radius: 1.5rem;
+      box-shadow: 0 6px 32px rgba(44,62,80,.08), 0 1.5px 8px rgba(44,62,80,.06);
+      padding: 2rem 1.2rem 1.7rem 1.2rem;
+      margin-top: 5vh;
+      z-index: 1;
+      position: relative;
+      animation: fadeInDown .9s;
+      backdrop-filter: blur(2.5px);
+    }
+    @keyframes fadeInDown { from { opacity:0; transform: translateY(-50px);} to{opacity:1; transform:none;} }
+    .cliente-title {
+      color: #e21a35;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1.4rem;
+      font-size: 1.37rem;
+    }
+    .msg-erro {
+      text-align: center;
+      margin-top: 1.1rem;
+      color: #e21a35;
+      font-weight: bold;
+      font-size: 1.1rem;
+      letter-spacing: -0.5px;
+      animation: shake .25s;
+    }
+    @keyframes shake { 10% { transform: translateX(-3px);} 20%{transform:translateX(3px);} 30%{transform:translateX(-2px);} 40%{transform:translateX(2px);} 100%{transform:none;} }
+
+    /* Saldo e catálogo */
+    .saldo-box {
+      background: linear-gradient(90deg,#e21a35 0,#20c997 100%);
+      color: #fff;
+      border-radius: 1.2rem;
+      font-size: 1.28rem;
+      font-weight: 700;
+      padding: 1.18rem 0.9rem;
+      margin-bottom: 2.1rem;
+      text-align: center;
+      box-shadow: 0 2px 12px #19875422;
+      letter-spacing: 0.5px;
+      position: relative;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 2px 12px #19875422;}
+      50% { box-shadow: 0 4px 28px #e21a3550;}
+      100% { box-shadow: 0 2px 12px #19875422;}
+    }
+
+    .catalogo-card {
+      max-width: 960px;
+      margin: 5vh auto 0 auto;
+      background: rgba(255,255,255,0.92);
+      border-radius: 1.3rem;
+      box-shadow: 0 4px 16px #e21a3544, 0 1.5px 8px #19875422;
+      padding: 2rem 1.5rem;
+      z-index: 1;
+      position: relative;
+      animation: fadeInUp .9s;
+    }
+    @keyframes fadeInUp { from { opacity:0; transform: translateY(60px);} to{opacity:1; transform:none;} }
+
+    .prod-card {
+      border-radius: 1.1rem;
+      padding: 1.3rem 1rem 1.1rem 1.4rem;
+      margin-bottom: 1.3rem;
+      background: linear-gradient(85deg,#f7fdfc 60%,#e2f6ef 100%);
+      box-shadow: 0 2px 14px #19875411;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1.5rem;
+      border-left: 8px solid #e21a35;
+      transition: box-shadow 0.2s, border 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .prod-card:hover {
+      box-shadow: 0 4px 18px #e21a3530;
+      border-left: 8px solid #20c997;
+    }
+    .prod-nome { color: #e21a35; font-weight: bold; font-size: 1.1rem;}
+    .prod-desc { color: #444; font-size: 0.98rem; margin-bottom:4px;}
+    .prod-pontos { color: #198754; font-weight: 700; font-size: 1rem;}
+    .btn-disabled {
+      background: #ced4da;
+      color: #fff !important;
+      cursor: not-allowed;
+      border: none;
+      font-weight: 600;
+      border-radius: 2rem;
+      box-shadow: 0 1px 3px #1a703155;
+      padding: 0.6rem 1.2rem;
+    }
+    /* selo novo/promocao */
+    .selo-promo-prod {
+      position: absolute;
+      right: 14px; top: 12px;
+      background: linear-gradient(100deg,#e21a35,#20c997 80%);
+      color:#fff;
+      padding: 0.19rem 0.9rem;
+      font-weight: 700;
+      border-radius: 1.3rem;
+      font-size:0.91rem;
+      box-shadow: 0 1px 5px #e21a3522;
+      letter-spacing:0.5px;
+    }
+    .cliente-bemvindo {
+      text-align:center;
+      font-weight:700;
+      color:#20c997;
+      margin-bottom:0.5rem;
+      font-size:1.12rem;
+      letter-spacing:0.5px;
+    }
+    .btn-sair {
+      display:block; margin: 0 auto; width:180px;
+      background: linear-gradient(90deg,#e21a35 0,#20c997 100%);
+      color:#fff; border: none; font-weight: 600; border-radius: 1.5rem;
+      padding: 0.6rem 0; margin-top: 6px; margin-bottom: 5px;
+      transition: background .18s;
+    }
+    .btn-sair:hover { background: linear-gradient(90deg,#20c997 0,#e21a35 100%);}
+    @media (max-width: 700px) {
+      .cliente-card, .catalogo-card { padding: 1rem; }
+      .brand-title { font-size: 1.1rem;}
+      .cliente-title { font-size: 1.07rem;}
+      .saldo-box { font-size: 1.01rem; padding: 0.7rem; }
+      .prod-card { flex-direction: column; gap: 0.3rem;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Fundo animado SVG/partículas/bolhas -->
+  <svg class="bg-promo" width="100vw" height="100vh">
+    <circle cx="14%" cy="18%" r="60" fill="#e21a3540"/>
+    <circle cx="87%" cy="11%" r="70" fill="#20c99733"/>
+    <circle cx="75%" cy="80%" r="100" fill="#20c99718"/>
+    <ellipse cx="48%" cy="70%" rx="180" ry="40" fill="#e21a3533"/>
+    <ellipse cx="65%" cy="32%" rx="38" ry="18" fill="#e21a3520"/>
+    <ellipse cx="32%" cy="55%" rx="25" ry="13" fill="#20c99722"/>
+  </svg>
+
+  <div id="loginBox" class="cliente-card">
+    <div class="logo-box">
+      <div class="logo-nh">
+        <!-- Logo comprimido metade verde/metade vermelho (SVG adaptado) -->
+        <svg viewBox="0 0 64 64" width="48" height="48">
+          <ellipse cx="32" cy="32" rx="26" ry="20" fill="#fff" stroke="#ccc" stroke-width="2"/>
+          <path d="M6 32 a26 20 0 0 1 52 0" fill="#e21a35"/>
+          <path d="M6 32 a26 20 0 0 0 52 0" fill="#20c997"/>
+          <ellipse cx="32" cy="32" rx="26" ry="20" fill="none" stroke="#ccc" stroke-width="2"/>
+        </svg>
+      </div>
+      <div>
+        <span class="brand-title">Clube de Pontos</span><span class="selo-promo">Novo Horizonte</span>
+      </div>
+    </div>
+    <h2 class="cliente-title">Acesse sua conta para consultar seus pontos e resgatar prêmios!</h2>
+    <div class="mb-3">
+      <label for="telefone" class="form-label">Telefone:</label>
+      <input type="tel" class="form-control" id="telefone" maxlength="15" placeholder="(11) 99999-9999">
+    </div>
+    <div class="mb-3">
+      <label for="senha" class="form-label">Senha:</label>
+      <input type="password" class="form-control" id="senha" maxlength="20" placeholder="Digite sua senha">
+    </div>
+    <button class="btn btn-primary w-100" id="entrarBtn" style="font-weight:600">
+      <i class="fa-solid fa-right-to-bracket"></i> Entrar
+    </button>
+    <div class="msg-erro" id="loginErro"></div>
+  </div>
+
+  <div id="clienteBox" style="display:none">
+    <div class="cliente-card">
+      <div class="logo-box" style="margin-bottom:10px;">
+        <div class="logo-nh">
+          <!-- Mesma logo comprimido -->
+          <svg viewBox="0 0 64 64" width="40" height="40">
+            <ellipse cx="32" cy="32" rx="26" ry="20" fill="#fff" stroke="#ccc" stroke-width="2"/>
+            <path d="M6 32 a26 20 0 0 1 52 0" fill="#e21a35"/>
+            <path d="M6 32 a26 20 0 0 0 52 0" fill="#20c997"/>
+            <ellipse cx="32" cy="32" rx="26" ry="20" fill="none" stroke="#ccc" stroke-width="2"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-title" style="font-size:1.3rem;">Clube de Pontos</span>
+        </div>
+      </div>
+      <div class="cliente-bemvindo">
+        Bem-vindo(a), <span id="clienteNome"></span>!
+      </div>
+      <div class="saldo-box">
+        <i class="fa-solid fa-wallet"></i>
+        Saldo de pontos: <span id="clienteSaldo">...</span>
+      </div>
+      <button class="btn-sair" id="sairBtn">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
+      </button>
+    </div>
+    <div class="catalogo-card">
+      <h4 style="text-align:center; color:#e21a35;font-weight:700;margin-bottom:1.5rem;letter-spacing:-1px;">
+        Produtos para resgatar neste mês <i class="fa-solid fa-gift"></i>
+      </h4>
+      <div id="produtosCatalogo">
+        <!-- Produtos aqui -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBoEFGxMUgb-MUbWpNzRbUEpEQDXes4wcc",
+      authDomain: "programa-de-pontos-nh.firebaseapp.com",
+      projectId: "programa-de-pontos-nh",
+      storageBucket: "programa-de-pontos-nh.firebasestorage.app",
+      messagingSenderId: "136030554657",
+      appId: "1:136030554657:web:9bc5561eddc658ab087160"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let clienteLogado = null;
+    let clienteId = null;
+
+    document.getElementById("entrarBtn").onclick = async () => {
+      const tel = document.getElementById("telefone").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+      document.getElementById("loginErro").innerText = "";
+
+      if (!tel || !senha) {
+        document.getElementById("loginErro").innerText = "Preencha todos os campos!";
+        return;
+      }
+
+      // Busca cliente
+      const q = query(collection(db, "clientes"), where("telefone", "==", tel), where("senha", "==", senha));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        document.getElementById("loginErro").innerText = "Telefone ou senha incorretos!";
+        return;
+      }
+
+      clienteLogado = snap.docs[0].data();
+      clienteId = snap.docs[0].id;
+
+      // Mostra área do cliente
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("clienteBox").style.display = "block";
+      document.getElementById("clienteNome").innerText = clienteLogado.nome || "-";
+
+      await mostrarSaldo();
+      await mostrarCatalogo();
+    };
+
+    document.getElementById("sairBtn").onclick = () => {
+      // Reset tela
+      document.getElementById("loginBox").style.display = "";
+      document.getElementById("clienteBox").style.display = "none";
+      document.getElementById("telefone").value = "";
+      document.getElementById("senha").value = "";
+      document.getElementById("loginErro").innerText = "";
+      clienteLogado = null;
+      clienteId = null;
+      document.getElementById("produtosCatalogo").innerHTML = "";
+      document.getElementById("clienteSaldo").innerText = "...";
+      document.getElementById("clienteNome").innerText = "";
+    };
+
+    async function mostrarSaldo() {
+      // Busca e soma os pontos ganhos e resgatados pelo cliente
+      let pontosGanhos = 0;
+      let pontosResgatados = 0;
+
+      // Notas com pontos (ganhos)
+      const qGanho = query(collection(db, "notas_pontos"), where("cliente", "==", clienteLogado.nome));
+      const snapGanho = await getDocs(qGanho);
+      snapGanho.forEach(doc => {
+        const d = doc.data();
+        pontosGanhos += Number(d.pontos) || 0;
+      });
+
+      // Resgates (descontos)
+      const qResgate = query(collection(db, "resgates"), where("clienteId", "==", clienteId));
+      const snapResgate = await getDocs(qResgate);
+      snapResgate.forEach(doc => {
+        const d = doc.data();
+        pontosResgatados += Number(d.pontos) || 0;
+      });
+
+      const saldo = pontosGanhos - pontosResgatados;
+      document.getElementById("clienteSaldo").innerText = saldo;
+    }
+
+    async function mostrarCatalogo() {
+      // Pega mês atual para filtro dos resgates
+      const now = new Date();
+      const mesAtual = String(now.getMonth() + 1).padStart(2, '0');
+      const anoAtual = String(now.getFullYear());
+
+      // Busca todos os produtos
+      const snapProdutos = await getDocs(collection(db, "produtos"));
+      const produtos = [];
+      snapProdutos.forEach(doc => {
+        produtos.push({ id: doc.id, ...doc.data() });
+      });
+
+      // Busca resgates desse cliente no mês atual
+      const snapResgates = await getDocs(query(
+        collection(db, "resgates"),
+        where("clienteId", "==", clienteId)
+      ));
+      const idsResgatadosEsteMes = new Set();
+      snapResgates.forEach(doc => {
+        const d = doc.data();
+        // Considera dataResgateString no formato DD/MM/YYYY, ou dataResgate (timestamp)
+        let dataResgate = null;
+        if (d.dataResgateString) {
+          const [dia, mes, ano] = d.dataResgateString.split('/');
+          dataResgate = { mes, ano };
+        } else if (d.dataResgate && d.dataResgate.toDate) {
+          const data = d.dataResgate.toDate();
+          dataResgate = { mes: String(data.getMonth()+1).padStart(2,'0'), ano: String(data.getFullYear()) };
+        }
+        if (dataResgate && dataResgate.mes === mesAtual && dataResgate.ano === anoAtual) {
+          idsResgatadosEsteMes.add(d.produtoId);
+        }
+      });
+
+      // Lista produtos não resgatados no mês
+      const div = document.getElementById("produtosCatalogo");
+      div.innerHTML = "";
+      let encontrou = false;
+      produtos.forEach(prod => {
+        if (!idsResgatadosEsteMes.has(prod.id)) {
+          encontrou = true;
+          div.innerHTML += `
+            <div class="prod-card">
+              <div>
+                <div class="prod-nome">${prod.nome}</div>
+                <div class="prod-desc">${prod.descricao || ""}</div>
+                <div class="prod-pontos"><i class="fa-solid fa-coins"></i> ${prod.pontos} pontos</div>
+              </div>
+              <button class="btn btn-disabled" disabled>
+                Disponível para resgate
+              </button>
+              ${prod.promocao ? `<span class="selo-promo-prod">Promoção</span>` : ""}
+            </div>
+          `;
+        }
+      });
+      if (!encontrou) {
+        div.innerHTML = `<div class="alert alert-info text-center" style="font-weight:600">
+          Você já resgatou todos os produtos permitidos este mês.<br>
+          Consulte seu extrato ou aguarde o próximo mês para novos resgates!
+        </div>`;
+      }
+    }
+  </script>
+</body>
+</html>
