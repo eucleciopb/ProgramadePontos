@@ -11,9 +11,30 @@
       min-height: 100vh;
       font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 1rem;
+    }
+    .alteracao {
+      text-align: center;
+      color: #198754;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-top: 18px;
+      margin-bottom: 2px;
+      width: 100vw;
+    }
+    .versao {
+      text-align: center;
+      color: #888;
+      font-weight: 600;
+      letter-spacing: 1px;
+      font-size: 1rem;
+      margin-bottom: 16px;
+      opacity: 0.92;
+      width: 100vw;
     }
     .login-card {
       background: #fff;
@@ -95,6 +116,8 @@
   </style>
 </head>
 <body>
+  <div class="alteracao">Última alteração: ajuste layout botão login</div>
+  <div class="versao">Versão 1.5</div>
   <div class="login-card">
     <!-- Ícone da cápsula -->
     <svg class="logo-icon" viewBox="0 0 24 24" fill="none">
@@ -106,10 +129,8 @@
       </defs>
       <path d="M12 2a6 6 0 0 1 6 6v8a6 6 0 0 1-12 0V8a6 6 0 0 1 6-6z" fill="url(#capsulaMetade)" stroke="#000" stroke-width="0.5"/>
     </svg>
-
     <div class="login-title">Programa de Pontos</div>
     <div class="empresa">Drogaria Novo Horizonte</div>
-
     <form id="loginForm" autocomplete="off">
       <div class="mb-3 text-start">
         <label for="login" class="form-label">Login</label>
