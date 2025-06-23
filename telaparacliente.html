@@ -16,14 +16,15 @@
     }
     .versao {
       text-align: center;
-      font-size: 1.09rem;
-      font-weight: 700;
       color: #888;
-      margin-top: 20px;
-      margin-bottom: 5px;
-      letter-spacing: 1.5px;
-      opacity: 0.85;
+      margin-top: 14px;
+      margin-bottom: -10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      font-size: 1rem;
+      opacity: 0.87;
     }
+    /* Fundo animado de cápsulas */
     .bg-promo {
       position: fixed;
       z-index: 0;
@@ -144,16 +145,29 @@
     .prod-desc { color: #444; font-size: 0.98rem; margin-bottom:4px;}
     .prod-pontos { color: #198754; font-weight: 700; font-size: 1rem;}
     .btn-disponivel {
-      background: #e6f4ea;
-      color: #198754;
+      background: #eafaf2;
+      color: #199e6a !important;
+      border: 2px solid #17ba7e;
       font-weight: 600;
-      border: 1.5px solid #20c997;
-      border-radius: 1.5rem;
+      border-radius: 2rem;
+      box-shadow: 0 1px 3px #1a703155;
       padding: 0.6rem 1.2rem;
-      min-width: 180px;
-      opacity: 1;
+      min-width: 200px;
+      transition: background .2s, color .2s;
+      cursor: not-allowed;
     }
-    .btn-disponivel[disabled] { opacity: 1; }
+    .btn-ja-resgatado {
+      background: #fff0f1;
+      color: #e21a35 !important;
+      border: 2px solid #e21a35;
+      font-weight: 600;
+      border-radius: 2rem;
+      box-shadow: 0 1px 3px #e21a3555;
+      padding: 0.6rem 1.2rem;
+      min-width: 200px;
+      transition: background .2s, color .2s;
+      cursor: not-allowed;
+    }
     .selo-promo-prod {
       position: absolute;
       right: 14px; top: 12px;
@@ -188,28 +202,34 @@
       .cliente-title { font-size: 1.07rem;}
       .saldo-box { font-size: 1.01rem; padding: 0.7rem; }
       .prod-card { flex-direction: column; gap: 0.3rem;}
+      .btn-disponivel, .btn-ja-resgatado { min-width: unset;}
     }
   </style>
 </head>
 <body>
-  <div class="versao">Versão 1.0</div>
+  <div class="versao">Versão 1.1</div>
+
   <!-- Fundo animado de cápsulas -->
   <svg class="bg-promo" width="100vw" height="100vh">
+    <!-- Cápsula 1 -->
     <g>
       <ellipse cx="14%" cy="22%" rx="36" ry="16" fill="#e21a35" opacity="0.13"/>
       <ellipse cx="17%" cy="22%" rx="36" ry="16" fill="#20c997" opacity="0.13" transform="rotate(-12 100 100)"/>
       <rect x="9%" y="17%" width="80" height="12" rx="8" fill="#fff" opacity="0.13" transform="rotate(-13 100 100)"/>
     </g>
+    <!-- Cápsula 2 -->
     <g>
       <ellipse cx="83%" cy="11%" rx="40" ry="16" fill="#20c997" opacity="0.18"/>
       <ellipse cx="86%" cy="12%" rx="40" ry="16" fill="#e21a35" opacity="0.11" transform="rotate(14 100 100)"/>
       <rect x="80%" y="8%" width="80" height="12" rx="8" fill="#fff" opacity="0.12" transform="rotate(9 100 100)"/>
     </g>
+    <!-- Cápsula 3 -->
     <g>
       <ellipse cx="32%" cy="66%" rx="46" ry="16" fill="#e21a35" opacity="0.09"/>
       <ellipse cx="36%" cy="69%" rx="46" ry="16" fill="#20c997" opacity="0.09" transform="rotate(-10 100 100)"/>
       <rect x="27%" y="62%" width="90" height="12" rx="8" fill="#fff" opacity="0.10" transform="rotate(-8 100 100)"/>
     </g>
+    <!-- Cápsula 4 -->
     <g>
       <ellipse cx="75%" cy="83%" rx="54" ry="16" fill="#20c997" opacity="0.11"/>
       <ellipse cx="80%" cy="84%" rx="54" ry="16" fill="#e21a35" opacity="0.10" transform="rotate(18 100 100)"/>
@@ -220,7 +240,6 @@
   <div id="loginBox" class="cliente-card">
     <div class="logo-box">
       <div class="logo-nh">
-        <!-- Logo comprimido metade verde/metade vermelho (SVG adaptado) -->
         <svg viewBox="0 0 64 64" width="48" height="48">
           <ellipse cx="32" cy="32" rx="26" ry="20" fill="#fff" stroke="#ccc" stroke-width="2"/>
           <path d="M6 32 a26 20 0 0 1 52 0" fill="#e21a35"/>
@@ -277,7 +296,9 @@
       <h4 style="text-align:center; color:#e21a35;font-weight:700;margin-bottom:1.5rem;letter-spacing:-1px;">
         Produtos para resgatar neste mês <i class="fa-solid fa-gift"></i>
       </h4>
-      <div id="produtosCatalogo"></div>
+      <div id="produtosCatalogo">
+        <!-- Produtos aqui -->
+      </div>
     </div>
   </div>
 
@@ -351,7 +372,6 @@
     };
 
     async function mostrarSaldo() {
-      // Busca sempre do documento do cliente após login/resgate
       const docSnap = await getDoc(doc(db, "clientes", clienteId));
       let saldo = 0;
       if (docSnap.exists()) {
@@ -366,16 +386,17 @@
       const mesAtual = String(now.getMonth() + 1).padStart(2, '0');
       const anoAtual = String(now.getFullYear());
 
-      // Busca produtos da coleção produtos_resgate
+      // Puxa todos os produtos (ajusta para 'produtos_resgate' se seu banco for assim)
       const snapProdutos = await getDocs(collection(db, "produtos_resgate"));
       const produtos = [];
       snapProdutos.forEach(doc => {
         produtos.push({ id: doc.id, ...doc.data() });
       });
 
-      // Busca resgates do cliente no mês
+      // Busca resgates do cliente neste mês
       const snapResgates = await getDocs(query(collection(db, "resgates"), where("clienteId", "==", clienteId)));
       const idsResgatadosEsteMes = new Set();
+      const nomesResgatadosEsteMes = new Set();
       snapResgates.forEach(doc => {
         const d = doc.data();
         let dataResgate = null;
@@ -386,41 +407,34 @@
           const data = d.dataResgate.toDate();
           dataResgate = { mes: String(data.getMonth()+1).padStart(2,'0'), ano: String(data.getFullYear()) };
         }
-        if (dataResgate && dataResgate.mes === mesAtual && dataResgate.ano === anoAtual && d.produtoId) {
-          idsResgatadosEsteMes.add(String(d.produtoId));
+        if (dataResgate && dataResgate.mes === mesAtual && dataResgate.ano === anoAtual) {
+          if (d.produtoId) idsResgatadosEsteMes.add(String(d.produtoId));
+          if (d.nomeProduto) nomesResgatadosEsteMes.add((d.nomeProduto+"").toLowerCase());
         }
       });
 
       const div = document.getElementById("produtosCatalogo");
       div.innerHTML = "";
-      let encontrou = false;
       produtos.forEach(prod => {
-        if (!idsResgatadosEsteMes.has(String(prod.id))) {
-          encontrou = true;
-          div.innerHTML += `
-            <div class="prod-card">
-              <div style="display:flex;gap:1.2rem;align-items:center;">
-                ${(prod.imagemUrl || prod.imagem) ? `<img src="${prod.imagemUrl || prod.imagem}" style="width:68px;height:68px;object-fit:cover;border-radius:0.8rem;border:2px solid #e21a35;background:#fff;">` : `<div style="width:68px;height:68px;background:#eee;border-radius:0.8rem;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:2rem;"><i class="fa-solid fa-box"></i></div>`}
-                <div>
-                  <div class="prod-nome">${prod.nome}</div>
-                  <div class="prod-desc">${prod.descricao || ""}</div>
-                  <div class="prod-pontos"><i class="fa-solid fa-coins"></i> ${prod.pontos} pontos</div>
-                </div>
+        const jaResgatado = idsResgatadosEsteMes.has(String(prod.id)) ||
+          (prod.nome && nomesResgatadosEsteMes.has((prod.nome+"").toLowerCase()));
+        div.innerHTML += `
+          <div class="prod-card">
+            <div style="display:flex;gap:1.2rem;align-items:center;">
+              ${(prod.imagemUrl || prod.imagem) ? `<img src="${prod.imagemUrl || prod.imagem}" style="width:68px;height:68px;object-fit:cover;border-radius:0.8rem;border:2px solid #e21a35;background:#fff;">` : `<div style="width:68px;height:68px;background:#eee;border-radius:0.8rem;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:2rem;"><i class="fa-solid fa-box"></i></div>`}
+              <div>
+                <div class="prod-nome">${prod.nome}</div>
+                <div class="prod-desc">${prod.descricao || ""}</div>
+                <div class="prod-pontos"><i class="fa-solid fa-coins"></i> ${prod.pontos} pontos</div>
               </div>
-              <button class="btn-disponivel" disabled>
-                Disponível para resgate
-              </button>
-              ${(prod.promocao ? `<span class="selo-promo-prod">Promoção</span>` : "")}
             </div>
-          `;
-        }
+            <button class="${jaResgatado ? 'btn-ja-resgatado' : 'btn-disponivel'}" disabled>
+              ${jaResgatado ? 'Produto já resgatado! Parabéns!' : 'Disponível para resgate'}
+            </button>
+            ${(prod.promocao ? `<span class="selo-promo-prod">Promoção</span>` : "")}
+          </div>
+        `;
       });
-      if (!encontrou) {
-        div.innerHTML = `<div class="alert alert-info text-center" style="font-weight:600">
-          Você já resgatou todos os produtos permitidos este mês.<br>
-          Consulte seu extrato ou aguarde o próximo mês para novos resgates!
-        </div>`;
-      }
     }
   </script>
 </body>
