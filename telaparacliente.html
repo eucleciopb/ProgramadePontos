@@ -207,7 +207,7 @@
   </style>
 </head>
 <body>
-  <div class="versao">Versão 1.1</div>
+  <div class="versao">Versão 1.5</div>
 
   <!-- Fundo animado de cápsulas -->
   <svg class="bg-promo" width="100vw" height="100vh">
@@ -386,7 +386,7 @@
       const mesAtual = String(now.getMonth() + 1).padStart(2, '0');
       const anoAtual = String(now.getFullYear());
 
-      // Puxa todos os produtos (ajusta para 'produtos_resgate' se seu banco for assim)
+      // Puxa todos os produtos (altere para "produtos" se não for "produtos_resgate")
       const snapProdutos = await getDocs(collection(db, "produtos_resgate"));
       const produtos = [];
       snapProdutos.forEach(doc => {
@@ -401,7 +401,10 @@
         const d = doc.data();
         let dataResgate = null;
         if (d.dataResgateString) {
-          const [dia, mes, ano] = d.dataResgateString.split('/');
+          // dataResgateString ex: "23/06/2025, 16:22:24"
+          const [dia, mes, resto] = d.dataResgateString.split('/');
+          let ano = null;
+          if (resto && resto.length >= 4) ano = resto.slice(0, 4);
           dataResgate = { mes, ano };
         } else if (d.dataResgate && d.dataResgate.toDate) {
           const data = d.dataResgate.toDate();
@@ -416,8 +419,9 @@
       const div = document.getElementById("produtosCatalogo");
       div.innerHTML = "";
       produtos.forEach(prod => {
+        // Marcação por ID do produto OU nome do produto (em minúsculo, remove espaços)
         const jaResgatado = idsResgatadosEsteMes.has(String(prod.id)) ||
-          (prod.nome && nomesResgatadosEsteMes.has((prod.nome+"").toLowerCase()));
+          (prod.nome && nomesResgatadosEsteMes.has((prod.nome+"").toLowerCase().trim()));
         div.innerHTML += `
           <div class="prod-card">
             <div style="display:flex;gap:1.2rem;align-items:center;">
