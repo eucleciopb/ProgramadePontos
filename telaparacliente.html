@@ -14,163 +14,58 @@
       position: relative;
       overflow-x: hidden;
     }
-    /* Fundo animado de cápsulas */
     .bg-promo {
       position: fixed;
       z-index: 0;
       top:0; left:0; width:100vw; height:100vh;
       pointer-events: none;
     }
-    .logo-box {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.2rem;
-      gap: 1.2rem;
-    }
+    .logo-box { display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem; gap: 1.2rem; }
     .logo-nh {
       width: 60px; height: 60px; border-radius: 50%; background: #fff; box-shadow: 0 2px 14px #19875444;
       display: flex; align-items: center; justify-content: center;
     }
     .logo-nh svg { width: 48px; height: 48px; }
-    .brand-title {
-      font-weight: 800;
-      font-size: 2rem;
-      color: #1a7031;
-      letter-spacing: -2px;
-      text-shadow: 1px 2px 8px #fff, 0 1px 0 #1a703122;
-    }
-    .selo-promo {
-      background: linear-gradient(135deg,#e21a35 40%,#20c997 80%);
-      color: #fff;
-      font-weight: bold;
-      padding: 0.3rem 0.9rem;
-      border-radius: 1.5rem;
-      font-size: 1rem;
-      margin-left: 1rem;
-      box-shadow: 0 2px 8px #e21a3544;
-    }
+    .brand-title { font-weight: 800; font-size: 2rem; color: #1a7031; letter-spacing: -2px; text-shadow: 1px 2px 8px #fff, 0 1px 0 #1a703122; }
+    .selo-promo { background: linear-gradient(135deg,#e21a35 40%,#20c997 80%); color: #fff; font-weight: bold; padding: 0.3rem 0.9rem; border-radius: 1.5rem; font-size: 1rem; margin-left: 1rem; box-shadow: 0 2px 8px #e21a3544;}
     .cliente-card {
-      max-width: 440px;
-      margin: 0 auto;
-      background: rgba(255,255,255,0.85);
-      border-radius: 1.5rem;
-      box-shadow: 0 6px 32px rgba(44,62,80,.08), 0 1.5px 8px rgba(44,62,80,.06);
-      padding: 2rem 1.2rem 1.7rem 1.2rem;
-      margin-top: 5vh;
-      z-index: 1;
-      position: relative;
-      animation: fadeInDown .9s;
-      backdrop-filter: blur(2.5px);
+      max-width: 440px; margin: 0 auto; background: rgba(255,255,255,0.85);
+      border-radius: 1.5rem; box-shadow: 0 6px 32px rgba(44,62,80,.08), 0 1.5px 8px rgba(44,62,80,.06);
+      padding: 2rem 1.2rem 1.7rem 1.2rem; margin-top: 5vh; z-index: 1; position: relative;
+      animation: fadeInDown .9s; backdrop-filter: blur(2.5px);
     }
     @keyframes fadeInDown { from { opacity:0; transform: translateY(-50px);} to{opacity:1; transform:none;} }
-    .cliente-title {
-      color: #e21a35;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 1.4rem;
-      font-size: 1.37rem;
-    }
-    .msg-erro {
-      text-align: center;
-      margin-top: 1.1rem;
-      color: #e21a35;
-      font-weight: bold;
-      font-size: 1.1rem;
-      letter-spacing: -0.5px;
-      animation: shake .25s;
-    }
+    .cliente-title { color: #e21a35; font-weight: 700; text-align: center; margin-bottom: 1.4rem; font-size: 1.37rem; }
+    .msg-erro { text-align: center; margin-top: 1.1rem; color: #e21a35; font-weight: bold; font-size: 1.1rem; letter-spacing: -0.5px; animation: shake .25s; }
     @keyframes shake { 10% { transform: translateX(-3px);} 20%{transform:translateX(3px);} 30%{transform:translateX(-2px);} 40%{transform:translateX(2px);} 100%{transform:none;} }
     .saldo-box {
       background: linear-gradient(90deg,#e21a35 0,#20c997 100%);
-      color: #fff;
-      border-radius: 1.2rem;
-      font-size: 1.28rem;
-      font-weight: 700;
-      padding: 1.18rem 0.9rem;
-      margin-bottom: 2.1rem;
-      text-align: center;
-      box-shadow: 0 2px 12px #19875422;
-      letter-spacing: 0.5px;
-      position: relative;
-      animation: pulse 1.8s infinite;
+      color: #fff; border-radius: 1.2rem; font-size: 1.28rem; font-weight: 700;
+      padding: 1.18rem 0.9rem; margin-bottom: 2.1rem; text-align: center;
+      box-shadow: 0 2px 12px #19875422; letter-spacing: 0.5px; position: relative; animation: pulse 1.8s infinite;
     }
-    @keyframes pulse {
-      0% { box-shadow: 0 2px 12px #19875422;}
-      50% { box-shadow: 0 4px 28px #e21a3550;}
-      100% { box-shadow: 0 2px 12px #19875422;}
-    }
+    @keyframes pulse { 0% { box-shadow: 0 2px 12px #19875422;} 50% { box-shadow: 0 4px 28px #e21a3550;} 100% { box-shadow: 0 2px 12px #19875422;} }
     .catalogo-card {
-      max-width: 960px;
-      margin: 5vh auto 0 auto;
-      background: rgba(255,255,255,0.92);
-      border-radius: 1.3rem;
-      box-shadow: 0 4px 16px #e21a3544, 0 1.5px 8px #19875422;
-      padding: 2rem 1.5rem;
-      z-index: 1;
-      position: relative;
-      animation: fadeInUp .9s;
+      max-width: 960px; margin: 5vh auto 0 auto; background: rgba(255,255,255,0.92);
+      border-radius: 1.3rem; box-shadow: 0 4px 16px #e21a3544, 0 1.5px 8px #19875422; padding: 2rem 1.5rem;
+      z-index: 1; position: relative; animation: fadeInUp .9s;
     }
     @keyframes fadeInUp { from { opacity:0; transform: translateY(60px);} to{opacity:1; transform:none;} }
     .prod-card {
-      border-radius: 1.1rem;
-      padding: 1.3rem 1rem 1.1rem 1.4rem;
-      margin-bottom: 1.3rem;
+      border-radius: 1.1rem; padding: 1.3rem 1rem 1.1rem 1.4rem; margin-bottom: 1.3rem;
       background: linear-gradient(85deg,#f7fdfc 60%,#e2f6ef 100%);
-      box-shadow: 0 2px 14px #19875411;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1.5rem;
-      border-left: 8px solid #e21a35;
-      transition: box-shadow 0.2s, border 0.2s;
-      position: relative;
-      overflow: hidden;
+      box-shadow: 0 2px 14px #19875411; display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 1.5rem; border-left: 8px solid #e21a35; transition: box-shadow 0.2s, border 0.2s;
+      position: relative; overflow: hidden;
     }
-    .prod-card:hover {
-      box-shadow: 0 4px 18px #e21a3530;
-      border-left: 8px solid #20c997;
-    }
+    .prod-card:hover { box-shadow: 0 4px 18px #e21a3530; border-left: 8px solid #20c997; }
     .prod-nome { color: #e21a35; font-weight: bold; font-size: 1.1rem;}
     .prod-desc { color: #444; font-size: 0.98rem; margin-bottom:4px;}
     .prod-pontos { color: #198754; font-weight: 700; font-size: 1rem;}
-    .btn-disabled {
-      background: #ced4da;
-      color: #fff !important;
-      cursor: not-allowed;
-      border: none;
-      font-weight: 600;
-      border-radius: 2rem;
-      box-shadow: 0 1px 3px #1a703155;
-      padding: 0.6rem 1.2rem;
-    }
-    .selo-promo-prod {
-      position: absolute;
-      right: 14px; top: 12px;
-      background: linear-gradient(100deg,#e21a35,#20c997 80%);
-      color:#fff;
-      padding: 0.19rem 0.9rem;
-      font-weight: 700;
-      border-radius: 1.3rem;
-      font-size:0.91rem;
-      box-shadow: 0 1px 5px #e21a3522;
-      letter-spacing:0.5px;
-    }
-    .cliente-bemvindo {
-      text-align:center;
-      font-weight:700;
-      color:#20c997;
-      margin-bottom:0.5rem;
-      font-size:1.12rem;
-      letter-spacing:0.5px;
-    }
-    .btn-sair {
-      display:block; margin: 0 auto; width:180px;
-      background: linear-gradient(90deg,#e21a35 0,#20c997 100%);
-      color:#fff; border: none; font-weight: 600; border-radius: 1.5rem;
-      padding: 0.6rem 0; margin-top: 6px; margin-bottom: 5px;
-      transition: background .18s;
-    }
+    .btn-disabled { background: #ced4da; color: #fff !important; cursor: not-allowed; border: none; font-weight: 600; border-radius: 2rem; box-shadow: 0 1px 3px #1a703155; padding: 0.6rem 1.2rem; }
+    .selo-promo-prod { position: absolute; right: 14px; top: 12px; background: linear-gradient(100deg,#e21a35,#20c997 80%); color:#fff; padding: 0.19rem 0.9rem; font-weight: 700; border-radius: 1.3rem; font-size:0.91rem; box-shadow: 0 1px 5px #e21a3522; letter-spacing:0.5px; }
+    .cliente-bemvindo { text-align:center; font-weight:700; color:#20c997; margin-bottom:0.5rem; font-size:1.12rem; letter-spacing:0.5px; }
+    .btn-sair { display:block; margin: 0 auto; width:180px; background: linear-gradient(90deg,#e21a35 0,#20c997 100%); color:#fff; border: none; font-weight: 600; border-radius: 1.5rem; padding: 0.6rem 0; margin-top: 6px; margin-bottom: 5px; transition: background .18s; }
     .btn-sair:hover { background: linear-gradient(90deg,#20c997 0,#e21a35 100%);}
     @media (max-width: 700px) {
       .cliente-card, .catalogo-card { padding: 1rem; }
@@ -184,25 +79,22 @@
 <body>
   <!-- Fundo animado de cápsulas -->
   <svg class="bg-promo" width="100vw" height="100vh">
-    <!-- Cápsula 1 -->
+    <!-- Cápsulas SVG igual ao original -->
     <g>
       <ellipse cx="14%" cy="22%" rx="36" ry="16" fill="#e21a35" opacity="0.13"/>
       <ellipse cx="17%" cy="22%" rx="36" ry="16" fill="#20c997" opacity="0.13" transform="rotate(-12 100 100)"/>
       <rect x="9%" y="17%" width="80" height="12" rx="8" fill="#fff" opacity="0.13" transform="rotate(-13 100 100)"/>
     </g>
-    <!-- Cápsula 2 -->
     <g>
       <ellipse cx="83%" cy="11%" rx="40" ry="16" fill="#20c997" opacity="0.18"/>
       <ellipse cx="86%" cy="12%" rx="40" ry="16" fill="#e21a35" opacity="0.11" transform="rotate(14 100 100)"/>
       <rect x="80%" y="8%" width="80" height="12" rx="8" fill="#fff" opacity="0.12" transform="rotate(9 100 100)"/>
     </g>
-    <!-- Cápsula 3 -->
     <g>
       <ellipse cx="32%" cy="66%" rx="46" ry="16" fill="#e21a35" opacity="0.09"/>
       <ellipse cx="36%" cy="69%" rx="46" ry="16" fill="#20c997" opacity="0.09" transform="rotate(-10 100 100)"/>
       <rect x="27%" y="62%" width="90" height="12" rx="8" fill="#fff" opacity="0.10" transform="rotate(-8 100 100)"/>
     </g>
-    <!-- Cápsula 4 -->
     <g>
       <ellipse cx="75%" cy="83%" rx="54" ry="16" fill="#20c997" opacity="0.11"/>
       <ellipse cx="80%" cy="84%" rx="54" ry="16" fill="#e21a35" opacity="0.10" transform="rotate(18 100 100)"/>
@@ -213,7 +105,6 @@
   <div id="loginBox" class="cliente-card">
     <div class="logo-box">
       <div class="logo-nh">
-        <!-- Logo comprimido metade verde/metade vermelho (SVG adaptado) -->
         <svg viewBox="0 0 64 64" width="48" height="48">
           <ellipse cx="32" cy="32" rx="26" ry="20" fill="#fff" stroke="#ccc" stroke-width="2"/>
           <path d="M6 32 a26 20 0 0 1 52 0" fill="#e21a35"/>
@@ -347,6 +238,7 @@
       let pontosGanhos = 0;
       let pontosResgatados = 0;
 
+      // Busca pontos ganhos
       const qGanho = query(collection(db, "notas_pontos"), where("cliente", "==", clienteLogado.nome));
       const snapGanho = await getDocs(qGanho);
       snapGanho.forEach(doc => {
@@ -354,6 +246,7 @@
         pontosGanhos += Number(d.pontos) || 0;
       });
 
+      // Busca pontos resgatados
       const qResgate = query(collection(db, "resgates"), where("clienteId", "==", clienteId));
       const snapResgate = await getDocs(qResgate);
       snapResgate.forEach(doc => {
@@ -362,7 +255,7 @@
       });
 
       const saldo = pontosGanhos - pontosResgatados;
-      document.getElementById("clienteSaldo").innerText = saldo;
+      document.getElementById("clienteSaldo").innerText = saldo.toLocaleString("pt-BR", {minimumFractionDigits:2});
     }
 
     async function mostrarCatalogo() {
@@ -370,19 +263,19 @@
       const mesAtual = String(now.getMonth() + 1).padStart(2, '0');
       const anoAtual = String(now.getFullYear());
 
-      const snapProdutos = await getDocs(collection(db, "produtos"));
+      // Produtos podem estar em "produtos" ou "produtos_resgate" dependendo do seu Firestore
+      const snapProdutos = await getDocs(collection(db, "produtos_resgate"));
       const produtos = [];
       snapProdutos.forEach(doc => {
         produtos.push({ id: doc.id, ...doc.data() });
       });
 
-      const snapResgates = await getDocs(query(
-        collection(db, "resgates"),
-        where("clienteId", "==", clienteId)
-      ));
+      // Busca resgates do cliente no mês
+      const snapResgates = await getDocs(query(collection(db, "resgates"), where("clienteId", "==", clienteId)));
       const idsResgatadosEsteMes = new Set();
       snapResgates.forEach(doc => {
         const d = doc.data();
+        // Checa o mês/ano do resgate
         let dataResgate = null;
         if (d.dataResgateString) {
           const [dia, mes, ano] = d.dataResgateString.split('/');
@@ -391,7 +284,6 @@
           const data = d.dataResgate.toDate();
           dataResgate = { mes: String(data.getMonth()+1).padStart(2,'0'), ano: String(data.getFullYear()) };
         }
-        // Corrigido: produtoId pode ser string ou referência, sempre comparar como string
         if (dataResgate && dataResgate.mes === mesAtual && dataResgate.ano === anoAtual && d.produtoId) {
           idsResgatadosEsteMes.add(String(d.produtoId));
         }
@@ -406,7 +298,7 @@
           div.innerHTML += `
             <div class="prod-card">
               <div style="display:flex;gap:1.2rem;align-items:center;">
-                ${prod.imagemUrl ? `<img src="${prod.imagemUrl}" style="width:68px;height:68px;object-fit:cover;border-radius:0.8rem;border:2px solid #e21a35;background:#fff;">` : `<div style="width:68px;height:68px;background:#eee;border-radius:0.8rem;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:2rem;"><i class="fa-solid fa-box"></i></div>`}
+                ${(prod.imagemUrl || prod.imagem) ? `<img src="${prod.imagemUrl || prod.imagem}" style="width:68px;height:68px;object-fit:cover;border-radius:0.8rem;border:2px solid #e21a35;background:#fff;">` : `<div style="width:68px;height:68px;background:#eee;border-radius:0.8rem;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:2rem;"><i class="fa-solid fa-box"></i></div>`}
                 <div>
                   <div class="prod-nome">${prod.nome}</div>
                   <div class="prod-desc">${prod.descricao || ""}</div>
@@ -416,7 +308,7 @@
               <button class="btn btn-disabled" disabled>
                 Disponível para resgate
               </button>
-              ${prod.promocao ? `<span class="selo-promo-prod">Promoção</span>` : ""}
+              ${(prod.promocao ? `<span class="selo-promo-prod">Promoção</span>` : "")}
             </div>
           `;
         }
