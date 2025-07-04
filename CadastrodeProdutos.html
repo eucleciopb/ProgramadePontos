@@ -18,6 +18,16 @@
       padding: 2rem;
       min-height: 100vh;
     }
+    .versao {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--gp-primary);
+      letter-spacing: 0.03em;
+      margin-bottom: 0.7rem;
+    }
     .card {
       border: none;
       border-radius: 1rem;
@@ -30,7 +40,7 @@
     .form-control:focus,
     .form-select:focus {
       border-color: var(--gp-primary);
-      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
     }
     .btn-primary {
       background-color: var(--gp-primary);
@@ -41,15 +51,55 @@
       background-color: var(--gp-success);
       border: none;
     }
+    .btn-save {
+      padding: 0.2rem 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
     .btn i {
       margin-right: 5px;
+    }
+    input[type="text"], input[type="number"] {
+      min-width: 80px;
+      max-width: 160px;
+      background: #fcf4f7;
+      border: 1.5px solid #e2c4c4;
+      border-radius: 5px;
+      font-weight: 500;
+      text-align: center;
+    }
+    .table td, .table th {
+      vertical-align: middle !important;
+      text-align: center;
+    }
+    .table thead th {
+      background: #f7eaea;
+      color: #b31d2e;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .table tr td {
+      font-size: 1.01rem;
+    }
+    .table .btn-danger {
+      font-size: 0.98rem;
+    }
+    .img-thumb {
+      width: 54px;
+      border-radius: 5px;
+      border: 1.5px solid #f1c9c9;
+      background: #fff6f6;
+      object-fit: contain;
+      max-height: 48px;
     }
   </style>
 </head>
 <body>
+  <div class="versao">Versão 1.1</div>
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="card-title m-0">Produtos para Resgate</h2>
+      <h2 class="card-title m-0">Produtos para Resgate — Edição Rápida</h2>
       <div>
         <button class="btn btn-outline-secondary me-2" onclick="window.location.href='menu.html'"><i class="bi bi-house-door"></i> Menu</button>
         <button class="btn btn-primary" onclick="window.location.href='cadastrarproduto.html'"><i class="bi bi-plus-circle"></i> Novo Produto</button>
@@ -62,13 +112,14 @@
       </div>
       <div class="table-responsive">
         <table class="table table-bordered table-sm align-middle">
-          <thead class="table-light">
+          <thead>
             <tr>
               <th>Produto</th>
-              <th>Imagem</th>
+              <th>Imagem (URL)</th>
               <th>Pontos</th>
               <th>Cód. Barras</th>
-              <th>Ações</th>
+              <th>Salvar</th>
+              <th>Excluir</th>
             </tr>
           </thead>
           <tbody id="produtosTabela"></tbody>
@@ -83,9 +134,9 @@
       getFirestore,
       collection,
       doc,
-      getDoc,
       deleteDoc,
-      onSnapshot
+      onSnapshot,
+      updateDoc
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -106,17 +157,33 @@
     function renderTabela(produtos) {
       tabela.innerHTML = "";
       produtos.forEach((p) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${p.nome}</td>
-          <td><img src="${p.imagem}" width="50" /></td>
-          <td>${p.pontos}</td>
-          <td>${p.codBarras}</td>
-          <td>
-            <button class="btn btn-sm btn-outline-primary me-2" onclick="editarProduto('${p.id}')"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger" onclick="excluirProduto('${p.id}')"><i class="bi bi-trash"></i></button>
-          </td>`;
-        tabela.appendChild(tr);
+        tabela.innerHTML += `
+          <tr>
+            <td>
+              <input type="text" class="form-control form-control-sm" value="${p.nome || ''}" id="nome-${p.id}" style="text-transform:uppercase;">
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" value="${p.imagem || ''}" id="imagem-${p.id}">
+              <div class="mt-1"><img src="${p.imagem || ''}" class="img-thumb" onerror="this.style.display='none'"></div>
+            </td>
+            <td>
+              <input type="number" min="0" class="form-control form-control-sm" value="${p.pontos || 0}" id="pontos-${p.id}">
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" value="${p.codBarras || ''}" id="codBarras-${p.id}">
+            </td>
+            <td>
+              <button class="btn btn-success btn-sm btn-save" onclick="salvarProduto('${p.id}')">
+                Salvar
+              </button>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-danger" onclick="excluirProduto('${p.id}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
       });
     }
 
@@ -129,22 +196,31 @@
       renderTabela(todosProdutos);
     });
 
-    window.editarProduto = async (id) => {
-      sessionStorage.setItem("produtoId", id);
-      window.location.href = "cadastrarproduto.html";
-    };
-
     window.excluirProduto = async (id) => {
       if (confirm("Deseja excluir este produto?")) {
         await deleteDoc(doc(db, "produtos_resgate", id));
       }
     };
 
+    window.salvarProduto = async (id) => {
+      const nome = document.getElementById(`nome-${id}`).value.trim().toUpperCase();
+      const imagem = document.getElementById(`imagem-${id}`).value.trim();
+      const pontos = Number(document.getElementById(`pontos-${id}`).value);
+      const codBarras = document.getElementById(`codBarras-${id}`).value.trim();
+      if (!nome || !imagem || !pontos || !codBarras) {
+        alert("Todos os campos são obrigatórios!");
+        return;
+      }
+      const produtoRef = doc(db, "produtos_resgate", id);
+      await updateDoc(produtoRef, { nome, imagem, pontos, codBarras });
+      alert("Produto atualizado!");
+    };
+
     pesquisa.addEventListener("input", () => {
       const termo = pesquisa.value.toLowerCase();
       const filtrados = todosProdutos.filter(p =>
-        p.nome.toLowerCase().includes(termo) ||
-        p.codBarras.toLowerCase().includes(termo)
+        (p.nome || '').toLowerCase().includes(termo) ||
+        (p.codBarras || '').toLowerCase().includes(termo)
       );
       renderTabela(filtrados);
     });
