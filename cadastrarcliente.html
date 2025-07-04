@@ -129,14 +129,10 @@
       const sobrenome = document.getElementById("sobrenome").value.trim().toUpperCase();
       const senha = document.getElementById("senha").value.trim();
 
-      let temDuplicado = false;
-
-      // Checagem de telefone duplicado
+      // Checagem de telefone duplicado no banco
       let q = query(collection(db, "clientes"), where("telefone", "==", telefone));
       let snap = await getDocs(q);
-      if (!snap.empty && (!clienteSession || snap.docs[0].id !== clienteSession.id)) temDuplicado = true;
-
-      if (temDuplicado) {
+      if (!snap.empty && (!clienteSession || snap.docs[0].id !== clienteSession.id)) {
         alert("Já existe um cliente com este telefone!");
         return;
       }
