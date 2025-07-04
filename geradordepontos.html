@@ -165,7 +165,8 @@
     const db = getFirestore(app);
 
     // Exibe usuário logado
-    const nome = sessionStorage.getItem("nome_atual") || sessionStorage.getItem("login_atual") || "-";
+    const nome = sessionStorage.getItem("nome_atual") || "-";
+    const login = sessionStorage.getItem("login_atual") || "-";
     const nivel = sessionStorage.getItem("nivel_atual") || "-";
     document.getElementById("user-info").innerHTML =
       `<b>Usuário:</b> ${nome}<br><b>Nível:</b> ${nivel}`;
@@ -226,21 +227,30 @@
         return;
       }
 
-      // Pede a senha do cliente via prompt
-      const senhaCliente = prompt("Digite a senha do cliente para confirmar:");
-      if (!senhaCliente) return;
+      // Pede a senha do operador via prompt
+      const senhaOperador = prompt("Digite a sua senha para confirmar:");
+      if (!senhaOperador) return;
 
-      // Confere senha no banco
-      const q = query(collection(db, "clientes"), where("telefone", "==", telefone), where("senha", "==", senhaCliente));
-      const snap = await getDocs(q);
-      if (snap.empty) {
-        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Senha incorreta para este cliente!</span>";
+      // Confere senha do operador
+      const operadorQuery = query(
+        collection(db, "usuarios_caixa"),
+        where("login", "==", login),
+        where("senha", "==", senhaOperador)
+      );
+      const operadorSnap = await getDocs(operadorQuery);
+      if (operadorSnap.empty) {
+        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Senha incorreta para este operador!</span>";
         return;
       }
 
-      const docRef = doc(db, "clientes", snap.docs[0].id);
-
       // Atualiza pontos gerados
+      const q = query(collection(db, "clientes"), where("telefone", "==", telefone));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        document.getElementById("msg-pontos").innerHTML = "<span class='text-danger'>Cliente não cadastrado!</span>";
+        return;
+      }
+      const docRef = doc(db, "clientes", snap.docs[0].id);
       await updateDoc(docRef, {
         pontos_gerados: increment(pontos)
       });
