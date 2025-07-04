@@ -76,6 +76,8 @@
     .btn-excluir:hover {
       background: #a81c33;
     }
+    /* Esconde via classe se precisar */
+    .d-none { display: none !important; }
   </style>
 </head>
 <body>
@@ -87,10 +89,10 @@
       <a href="cadastrocliente.html" class="btn btn-outline-dark btn-menu">
         <i class="fa-solid fa-users"></i> Consulta de Clientes
       </a>
-      <a href="cadastrooperadores.html" class="btn btn-outline-dark btn-menu">
+      <a href="cadastrooperadores.html" class="btn btn-outline-dark btn-menu" id="btn-operadores">
         <i class="fa-solid fa-users-gear"></i> Consulta de Operadores
       </a>
-      <a href="CadastrodeProdutos.html" class="btn btn-outline-dark btn-menu">
+      <a href="CadastrodeProdutos.html" class="btn btn-outline-dark btn-menu" id="btn-produtos">
         <i class="fa-solid fa-box-open"></i> Cadastro de Produtos
       </a>
       <a href="geradordepontos.html" class="btn btn-outline-success btn-menu">
@@ -102,7 +104,7 @@
       <a href="extratocliente.html" class="btn btn-outline-primary btn-menu">
         <i class="fa-solid fa-receipt"></i> Extrato do Cliente
       </a>
-      <a href="ranking.html" class="btn btn-outline-info btn-menu">
+      <a href="ranking.html" class="btn btn-outline-info btn-menu" id="btn-ranking">
         <i class="fa-solid fa-trophy"></i> Ranking de Pontos
       </a>
       <!-- NOVO BOTÃO ACESSO CLIENTE -->
@@ -115,7 +117,7 @@
     </div>
 
     <!-- Últimas notas com pontos -->
-    <div class="menu-card">
+    <div class="menu-card" id="card-tabelaNotas">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="section-title">📄 Últimas 20 Notas com Pontos</div>
         <button class="btn btn-sm btn-outline-secondary" onclick="exportarExcel('notas')">Exportar Excel</button>
@@ -139,7 +141,7 @@
     </div>
 
     <!-- Últimas trocas -->
-    <div class="menu-card">
+    <div class="menu-card" id="card-tabelaTrocas">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="section-title">🎁 Últimas 20 Trocas de Produtos</div>
         <button class="btn btn-sm btn-outline-secondary" onclick="exportarExcel('trocas')">Exportar Excel</button>
@@ -200,6 +202,16 @@
       <b>Nível:</b> ${nivel}
     `;
 
+    // ----- REGRA DE VISUALIZAÇÃO PELO NÍVEL -----
+    if (nivel.trim().toLowerCase() === "operador") {
+      // Esconde botões e cards para "operador"
+      document.getElementById("btn-produtos").style.display = "none";
+      document.getElementById("btn-operadores").style.display = "none";
+      document.getElementById("btn-ranking").style.display = "none";
+      document.getElementById("card-tabelaNotas").style.display = "none";
+      document.getElementById("card-tabelaTrocas").style.display = "none";
+    }
+
     // Últimas notas com pontos
     async function carregarNotas() {
       const ref = collection(db, "notas_pontos");
@@ -230,7 +242,7 @@
       });
     }
 
-    // Últimas trocas de produtos (resgates) - AGORA COM EXCLUIR
+    // Últimas trocas de produtos (resgates)
     async function carregarTrocas() {
       const ref = collection(db, "resgates");
       const q = query(ref, orderBy("dataResgateString", "desc"), limit(20));
