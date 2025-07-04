@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Visualizar/Editar Operadores - Programa de Pontos</title>
+  <title>Operadores - Edição Rápida (v1.1)</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     :root {
@@ -16,6 +16,16 @@
       min-height: 100vh;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       padding: 2rem;
+    }
+    .versao {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--gp-primary);
+      letter-spacing: 0.03em;
+      margin-bottom: 0.7rem;
     }
     .card {
       border: none;
@@ -41,23 +51,56 @@
     }
     .btn-save {
       padding: 0.2rem 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
     }
     input[type="text"], input[type="password"], select {
       min-width: 90px;
-      max-width: 160px;
+      max-width: 170px;
+      background: #f4fcf7;
+      border: 1.5px solid #c4e2d0;
+      border-radius: 5px;
+      font-weight: 500;
+      text-align: center;
     }
     input[type="checkbox"] {
-      transform: scale(1.3);
+      transform: scale(1.45);
+      accent-color: var(--gp-primary);
+      cursor: pointer;
+      margin-top: 2px;
+    }
+    .center-checkbox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 42px;
     }
     .table td, .table th {
       vertical-align: middle !important;
+      text-align: center;
+    }
+    .table thead th {
+      background: #e8faf0;
+      color: #1a6e45;
+      font-size: 1.08rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .table tr td {
+      font-size: 1.01rem;
+    }
+    .table .btn-danger {
+      font-size: 0.98rem;
     }
   </style>
 </head>
 <body>
+  <div class="versao">
+    <span>Versão 1.1</span>
+  </div>
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="card-title">Operadores - Edição Rápida</h2>
+      <h2 class="card-title">Operadores — Edição Rápida</h2>
       <div>
         <a href="menu.html" class="btn btn-outline-primary me-2">Voltar ao Menu</a>
         <a href="cadastraroperador.html" class="btn btn-primary">Novo Operador</a>
@@ -72,7 +115,7 @@
     <div class="card p-4">
       <div class="table-responsive">
         <table class="table table-bordered table-sm align-middle">
-          <thead class="table-light">
+          <thead>
             <tr>
               <th>Nome</th>
               <th>Login</th>
@@ -123,31 +166,31 @@
       dados.forEach((usuarioDoc) => {
         const usuario = usuarioDoc.data();
         const id = usuarioDoc.id;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><input type="text" class="form-control form-control-sm" value="${usuario.nome || ""}" id="nome-${id}" style="text-transform:uppercase;"></td>
-          <td><input type="text" class="form-control form-control-sm" value="${usuario.login || ""}" id="login-${id}" style="text-transform:lowercase;"></td>
-          <td><input type="password" class="form-control form-control-sm" value="${usuario.senha || ""}" id="senha-${id}" minlength="8"></td>
-          <td>
-            <select id="nivel-${id}" class="form-select form-select-sm">
-              <option value="operador" ${usuario.nivel === 'operador' ? 'selected' : ''}>Operador</option>
-              <option value="supervisor" ${usuario.nivel === 'supervisor' ? 'selected' : ''}>Supervisor</option>
-              <option value="admin" ${usuario.nivel === 'admin' ? 'selected' : ''}>Admin</option>
-            </select>
-          </td>
-          <td class="text-center">
-            <input type="checkbox" id="ativo-${id}" ${usuario.ativo ? "checked" : ""}>
-          </td>
-          <td>
-            <button class="btn btn-success btn-sm btn-save" onclick="salvarEdicao('${id}')">
-              Salvar
-            </button>
-          </td>
-          <td>
-            <button class="btn btn-sm btn-danger" onclick="deletarUsuario('${id}')">Excluir</button>
-          </td>
+        tabela.innerHTML += `
+          <tr>
+            <td><input type="text" class="form-control form-control-sm" value="${usuario.nome || ""}" id="nome-${id}" style="text-transform:uppercase;"></td>
+            <td><input type="text" class="form-control form-control-sm" value="${usuario.login || ""}" id="login-${id}" style="text-transform:lowercase;"></td>
+            <td><input type="text" class="form-control form-control-sm" value="${usuario.senha || ""}" id="senha-${id}" minlength="8"></td>
+            <td>
+              <select id="nivel-${id}" class="form-select form-select-sm">
+                <option value="operador" ${usuario.nivel === 'operador' ? 'selected' : ''}>Operador</option>
+                <option value="supervisor" ${usuario.nivel === 'supervisor' ? 'selected' : ''}>Supervisor</option>
+                <option value="admin" ${usuario.nivel === 'admin' ? 'selected' : ''}>Admin</option>
+              </select>
+            </td>
+            <td class="center-checkbox">
+              <input type="checkbox" id="ativo-${id}" ${usuario.ativo ? "checked" : ""}>
+            </td>
+            <td>
+              <button class="btn btn-success btn-sm btn-save" onclick="salvarEdicao('${id}')">
+                Salvar
+              </button>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-danger" onclick="deletarUsuario('${id}')">Excluir</button>
+            </td>
+          </tr>
         `;
-        tabela.appendChild(tr);
       });
     };
 
