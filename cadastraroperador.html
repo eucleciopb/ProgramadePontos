@@ -46,7 +46,7 @@
 </head>
 <body>
   <div class="card">
-    <h2 class="card-title text-center mb-4">Novo Operador</h2>
+    <h2 class="card-title text-center mb-4" id="titulo-form">Novo Operador</h2>
     <form id="operadorForm" novalidate>
       <div class="mb-3">
         <label for="nome" class="form-label">Nome Completo</label>
@@ -93,7 +93,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp
+      getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp, doc, updateDoc
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -109,6 +109,18 @@
     const db = getFirestore(app);
     const form = document.getElementById("operadorForm");
 
+    // Preenche campos caso seja edição
+    const operadorEdicao = JSON.parse(sessionStorage.getItem("operador_edicao"));
+    if (operadorEdicao) {
+      document.getElementById("titulo-form").textContent = "Editar Operador";
+      document.getElementById("nome").value = operadorEdicao.nome || "";
+      document.getElementById("login").value = operadorEdicao.login || "";
+      document.getElementById("senha").value = operadorEdicao.senha || "";
+      document.getElementById("confirmSenha").value = operadorEdicao.senha || "";
+      document.getElementById("nivel").value = operadorEdicao.nivel || "";
+      document.getElementById("ativo").checked = operadorEdicao.ativo === undefined ? true : operadorEdicao.ativo;
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -123,28 +135,34 @@
         alert("Por favor, preencha todos os campos obrigatórios.");
         return;
       }
-
       if (senha !== confirmSenha) {
         alert("As senhas não coincidem.");
         return;
       }
-
-      const q = query(collection(db, "usuarios_caixa"), where("login", "==", login));
-      const res = await getDocs(q);
-      if (!res.empty) {
-        alert("Já existe um operador com este login.");
-        return;
-      }
-
       const novoOperador = { nome, login, senha, nivel, ativo, criado_em: serverTimestamp() };
 
       try {
-        await addDoc(collection(db, "usuarios_caixa"), novoOperador);
-        alert("Operador cadastrado com sucesso!");
+        if (operadorEdicao && operadorEdicao.id) {
+          // EDIÇÃO
+          const operadorRef = doc(db, "usuarios_caixa", operadorEdicao.id);
+          await updateDoc(operadorRef, novoOperador);
+          sessionStorage.removeItem("operador_edicao");
+          alert("Operador atualizado com sucesso!");
+        } else {
+          // NOVO
+          const q = query(collection(db, "usuarios_caixa"), where("login", "==", login));
+          const res = await getDocs(q);
+          if (!res.empty) {
+            alert("Já existe um operador com este login.");
+            return;
+          }
+          await addDoc(collection(db, "usuarios_caixa"), novoOperador);
+          alert("Operador cadastrado com sucesso!");
+        }
         window.location.href = "cadastrooperadores.html";
       } catch (error) {
         console.error(error);
-        alert("Erro ao cadastrar operador.");
+        alert("Erro ao salvar operador.");
       }
     });
 
