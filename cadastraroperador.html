@@ -89,7 +89,6 @@
       </div>
     </form>
   </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
@@ -109,8 +108,10 @@
     const db = getFirestore(app);
     const form = document.getElementById("operadorForm");
 
-    // Preenche campos caso seja edição
+    // Leitura debug
     const operadorEdicao = JSON.parse(sessionStorage.getItem("operador_edicao"));
+    console.log("Operador para edição na tela de cadastro:", operadorEdicao);
+
     if (operadorEdicao) {
       document.getElementById("titulo-form").textContent = "Editar Operador";
       document.getElementById("nome").value = operadorEdicao.nome || "";
