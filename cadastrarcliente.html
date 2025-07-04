@@ -1,4 +1,4 @@
-<!-- cadastrarcliente.html - tela de cadastro separada e moderna -->
+<!-- cadastrarcliente.html - tela de cadastro separada e moderna SEM E-MAIL -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -71,10 +71,6 @@
         <label for="sobrenome" class="form-label">Sobrenome</label>
         <input type="text" class="form-control" id="sobrenome" required style="text-transform: uppercase;" />
       </div>
-      <div class="mb-3">
-        <label for="email" class="form-label">E-mail</label>
-        <input type="email" class="form-control" id="email" required style="text-transform: lowercase;" />
-      </div>
       <div class="mb-4">
         <label for="senha" class="form-label">Senha</label>
         <input type="password" class="form-control" id="senha" required minlength="4" maxlength="20" />
@@ -117,12 +113,12 @@
     const db = getFirestore(app);
     const form = document.getElementById("formCliente");
 
+    // Carrega dados do cliente para edição, se houver
     const clienteSession = JSON.parse(sessionStorage.getItem("cliente_edicao"));
     if (clienteSession) {
       document.getElementById("telefone").value = clienteSession.telefone;
       document.getElementById("nome").value = clienteSession.nome;
       document.getElementById("sobrenome").value = clienteSession.sobrenome;
-      document.getElementById("email").value = clienteSession.email;
       document.getElementById("senha").value = clienteSession.senha;
     }
 
@@ -131,25 +127,21 @@
       const telefone = document.getElementById("telefone").value.trim();
       const nome = document.getElementById("nome").value.trim().toUpperCase();
       const sobrenome = document.getElementById("sobrenome").value.trim().toUpperCase();
-      const email = document.getElementById("email").value.trim().toLowerCase();
       const senha = document.getElementById("senha").value.trim();
 
       let temDuplicado = false;
 
+      // Checagem de telefone duplicado
       let q = query(collection(db, "clientes"), where("telefone", "==", telefone));
       let snap = await getDocs(q);
       if (!snap.empty && (!clienteSession || snap.docs[0].id !== clienteSession.id)) temDuplicado = true;
 
-      q = query(collection(db, "clientes"), where("email", "==", email));
-      snap = await getDocs(q);
-      if (!snap.empty && (!clienteSession || snap.docs[0].id !== clienteSession.id)) temDuplicado = true;
-
       if (temDuplicado) {
-        alert("Já existe um cliente com este telefone ou e-mail!");
+        alert("Já existe um cliente com este telefone!");
         return;
       }
 
-      const cliente = { telefone, nome, sobrenome, email, senha, criado_em: serverTimestamp() };
+      const cliente = { telefone, nome, sobrenome, senha, criado_em: serverTimestamp() };
 
       try {
         if (clienteSession) {
