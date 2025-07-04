@@ -88,7 +88,7 @@
       import {
         getFirestore,
         collection,
-        getDocs,
+        getDoc,
         deleteDoc,
         doc,
         onSnapshot
@@ -158,9 +158,15 @@
         }
       };
 
+      // Salva todos os dados do operador no sessionStorage e vai para editar
       window.editarUsuario = async (id) => {
-        sessionStorage.setItem("editar_operador_id", id);
-        window.location.href = "cadastraroperador.html";
+        const ref = doc(db, "usuarios_caixa", id);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const dados = snap.data();
+          sessionStorage.setItem("operador_edicao", JSON.stringify({ ...dados, id }));
+          window.location.href = "cadastraroperador.html";
+        }
       };
     </script>
   </body>
